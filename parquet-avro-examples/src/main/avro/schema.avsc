@@ -1,0 +1,47 @@
+[{
+    "type": "record",
+    "name": "Account",
+    "namespace": "parquet.avro.schema",
+    "doc": "Record for an account",
+    "fields": [
+        {"name": "id", "type": "int"},
+        {"name": "type", "type": "string"},
+        {"name": "name", "type": "string"},
+        {"name": "amount", "type": "int"}
+    ]
+}, {
+    "type": "record",
+    "name": "User",
+    "namespace": "parquet.avro.schema",
+    "doc": "Record for a user",
+    "fields": [
+        {"name": "id", "type": "int"},
+        {"name": "last_name", "type": "string"},
+        {"name": "first_name", "type": "string"},
+        {"name": "email", "type": "string"},
+        {
+            "name": "accounts",
+            "type": {
+                "type": "array",
+                "items": "Account"
+            }
+        },
+        {
+            "name": "address",
+            "type": {
+                "type": "record",
+                "name": "Address",
+                "namespace": "parquet.avro.schema",
+                "doc": "Record for an address",
+                "fields": [
+                    {"name": "street1", "type": "string"},
+                    {"name": "street2", "type": "string"},
+                    {"name": "city", "type": "string"},
+                    {"name": "state", "type": "string"},
+                    {"name": "zip", "type": "string"},
+                    {"name": "country", "type": "string"}
+                ]
+            }
+        }
+    ]
+}]
