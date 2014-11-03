@@ -3,7 +3,7 @@ import Keys._
 
 object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq (
-    organization  := "parquet.avro",
+    organization  := "parquet",
     version       := "0.1.0-SNAPSHOT",
     scalaVersion  := "2.10.4",
     crossScalaVersions := Seq("2.10.4", "2.11.2"),
