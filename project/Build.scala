@@ -46,11 +46,17 @@ object ScalaMacroDebugBuild extends Build {
     )
   )
 
+  lazy val parquetAvroSchema: Project = Project(
+    "parquet-avro-schema",
+    file("parquet-avro-schema"),
+    settings = buildSettings ++ sbtavro.SbtAvro.avroSettings
+  )
+
   lazy val parquetAvroExamples: Project = Project(
     "parquet-avro-examples",
     file("parquet-avro-examples"),
-    settings = buildSettings ++ sbtavro.SbtAvro.avroSettings ++ Seq(
+    settings = buildSettings ++ Seq(
       libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
     )
-  ) dependsOn parquetAvroExtra
+  ) dependsOn (parquetAvroExtra, parquetAvroSchema)
 }
