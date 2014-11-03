@@ -50,5 +50,5 @@ object ScalaMacroDebugBuild extends Build {
     "parquet-avro-examples",
     file("parquet-avro-examples"),
     settings = buildSettings ++ sbtavro.SbtAvro.avroSettings
-  ) dependsOn(parquetAvroExtra)
+  ) dependsOn parquetAvroExtra
 }
