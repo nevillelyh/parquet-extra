@@ -1,7 +1,7 @@
 package parquet.avro
 
 import org.scalatest._
-import parquet.avro.schema.User
+import _root_.parquet.avro.schema.User
 
 class ProjectionTest extends FlatSpec with Matchers {
 

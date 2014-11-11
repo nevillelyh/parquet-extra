@@ -1,8 +1,7 @@
 package parquet.avro
 
 import org.apache.avro.Schema
-import org.apache.avro.specific.SpecificRecord
-import org.apache.avro.compiler.specific.SpecificCompiler.generateGetMethod
+import org.apache.avro.specific.{ SpecificRecord => SR }
 
 import scala.collection.JavaConverters._
 import scala.language.experimental.macros
@@ -10,49 +9,17 @@ import scala.reflect.macros.Context
 
 object Projection {
 
-  def apply[T <: SpecificRecord](fields: (T => Any)*): Schema = macro applyImpl[T]
+  def apply[T <: SR](getters: (T => Any)*): Schema = macro applyImpl[T]
 
-  def applyImpl[T <: SpecificRecord : c.WeakTypeTag](c: Context)(fields: c.Expr[(T => Any)]*): c.Expr[Schema] = {
+  def applyImpl[T <: SR : c.WeakTypeTag](c: Context)(getters: c.Expr[(T => Any)]*): c.Expr[Schema] = {
     import c.universe._
 
     val schema = Class.forName(implicitly[WeakTypeTag[T]].tpe.typeSymbol.fullName)
       .getMethod("getClassSchema").invoke(null).asInstanceOf[Schema]
-
-    def extractGetters(e: Tree): Seq[String] = {
-      def extract(e: Tree, s: Seq[String]): (Tree, Seq[String]) = e match {
-        case Select(sel, tn) => extract(sel, tn.toString +: s)
-        case Apply(sel, _)   => extract(sel, s)
-        case x => (null, s)
-      }
-      extract(e, Seq())._2
-    }
-
-    def gettersToFields(getters: Seq[String]): Seq[String] = {
-      var node = schema
-      getters.zipWithIndex.map { case (g, i) =>
-        val field = node.getFields.asScala.find(f => generateGetMethod(schema, f) == g).get
-        val next = field.schema()
-        if (i < getters.size - 1) {
-          node = next.getType match {
-            case Schema.Type.RECORD => next
-            case Schema.Type.UNION => next.getTypes.asScala.find(_.getType != Schema.Type.NULL).get
-            case Schema.Type.ARRAY => next.getElementType
-            case t => throw new RuntimeException(s"Unsupported type: $t")
-          }
-        }
-        field.name()
-      }
-    }
-
     val schemaString = schema.toString(false)
+    val columnPaths = getters.map(Common.treeToField(c)(schema, _)._1)
 
-    val fieldArgs = fields.map { t =>
-      val Function(_, body) = t.tree
-      val getters = extractGetters(body).filter(_ != "get")  // get(i: Int) of nested arrays
-      gettersToFields(getters).mkString(".")
-    }
-
-    c.Expr[Schema](q"""Projection.project($schemaString, ..$fieldArgs)""")
+    c.Expr[Schema](q"Projection.project($schemaString, ..$columnPaths)")
   }
 
   def project(schema: String, fields: String*): Schema = {

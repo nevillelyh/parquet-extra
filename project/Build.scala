@@ -28,7 +28,8 @@ object ScalaMacroDebugBuild extends Build {
       libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
       libraryDependencies ++= Seq(
         "org.apache.avro" % "avro" % "1.7.4",
-        "org.apache.avro" % "avro-compiler" % "1.7.4"
+        "org.apache.avro" % "avro-compiler" % "1.7.4",
+        "com.twitter" % "parquet-column" % "1.6.0rc3"
       ),
       libraryDependencies := {
         CrossVersion.partialVersion(scalaVersion.value) match {

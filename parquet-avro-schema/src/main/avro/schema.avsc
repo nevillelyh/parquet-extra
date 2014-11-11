@@ -44,4 +44,17 @@
             }
         }
     ]
+}, {
+    "type": "record",
+    "name": "TestRecord",
+    "namespace": "parquet.avro.schema",
+    "doc": "Record for testing",
+    "fields": [
+        {"name": "int_field", "type": "int"},
+        {"name": "long_field", "type": "long"},
+        {"name": "float_field", "type": "float"},
+        {"name": "double_field", "type": "double"},
+        {"name": "boolean_field", "type": "boolean"},
+        {"name": "string_field", "type": "string"}
+    ]
 }]
