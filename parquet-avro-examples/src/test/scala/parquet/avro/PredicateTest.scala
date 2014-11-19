@@ -24,7 +24,34 @@ class PredicateTest extends FlatSpec with Matchers {
     Predicate[TestRecord](_.getBooleanField == true) should equal (F.eq(boolCol, JBoolean.valueOf(true)))
 
     Predicate[TestRecord](_.getStringField.toString > "abc") should equal (F.gt(strCol, Binary.fromString("abc")))
+  }
 
+  "Predicate" should "support all primitive values" in {
+    val intVal = 10
+    Predicate[TestRecord](_.getIntField > intVal) should equal (F.gt(intCol, JInt.valueOf(10)))
+    Predicate[TestRecord](_.getIntField > intVal + 1) should equal (F.gt(intCol, JInt.valueOf(10 + 1)))
+
+    val longVal = 10l
+    Predicate[TestRecord](_.getLongField > longVal) should equal (F.gt(longCol, JLong.valueOf(10)))
+    Predicate[TestRecord](_.getLongField > longVal + 1) should equal (F.gt(longCol, JLong.valueOf(10 + 1)))
+
+    val floatVal = 10f
+    Predicate[TestRecord](_.getFloatField > floatVal) should equal (F.gt(floatCol, JFloat.valueOf(10)))
+    Predicate[TestRecord](_.getFloatField > floatVal + 1) should equal (F.gt(floatCol, JFloat.valueOf(10 + 1)))
+
+    val doubleVal = 10.0
+    Predicate[TestRecord](_.getDoubleField > doubleVal) should equal (F.gt(doubleCol, JDouble.valueOf(10)))
+    Predicate[TestRecord](_.getDoubleField > doubleVal + 1) should equal (F.gt(doubleCol, JDouble.valueOf(10 + 1)))
+
+    val booleanVal = true
+    Predicate[TestRecord](_.getBooleanField == booleanVal) should equal (F.eq(boolCol, JBoolean.valueOf(true)))
+    Predicate[TestRecord](_.getBooleanField == !booleanVal) should equal (F.eq(boolCol, JBoolean.valueOf(!true)))
+
+    val stringVal = "abc"
+    Predicate[TestRecord](_.getStringField.toString > stringVal) should equal (F.gt(strCol, Binary.fromString("abc")))
+    Predicate[TestRecord] {
+      _.getStringField.toString > stringVal + "x"
+    } should equal (F.gt(strCol, Binary.fromString("abc" + "x")))
   }
 
   "Predicate" should "support all predicates" in {

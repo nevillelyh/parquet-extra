@@ -14,7 +14,9 @@ object Predicate {
   def applyImpl[T <: SR : c.WeakTypeTag](c: Context)
                                         (p: c.Expr[T => Boolean]): c.Expr[FilterPredicate] = {
     import c.universe._
-    val namespace = q"_root_.parquet.filter2.predicate"
+    val ns = q"_root_.parquet.filter2.predicate"
+    val nsApi = q"$ns.FilterApi"
+    val nsOp = q"$ns.Operators"
 
     val schema = Class
       .forName(implicitly[WeakTypeTag[T]].tpe.typeSymbol.fullName)
@@ -24,22 +26,27 @@ object Predicate {
 
     def mkPredicateFn(columnType: Tree, columnFn: String, value: Tree): (String, String) => Tree = {
       val vt = tq"$columnType with Comparable[$columnType]"
-      val supportsLtGt = tq"$namespace.Operators.SupportsLtGt"
-      val ct = tq"$namespace.Operators.Column[$columnType] with $supportsLtGt"
+      val supportsLtGt = tq"$nsOp.SupportsLtGt"
+      val ct = tq"$nsOp.Column[$columnType] with $supportsLtGt"
 
       (columnPath: String, operator: String) => {
         val opFn = newTermName(operator)
         val cFn = newTermName(columnFn)
-        val colVal = q"$namespace.FilterApi.$cFn($columnPath)"
-        q"$namespace.FilterApi.$opFn($colVal.asInstanceOf[$ct], $value.asInstanceOf[$vt])"
+        val colVal = q"$nsApi.$cFn($columnPath)"
+        q"$nsApi.$opFn($colVal.asInstanceOf[$ct], $value.asInstanceOf[$vt])"
       }
     }
 
     def applyToPredicate(tree: Tree): c.Expr[FilterPredicate] = {
       val Apply(Select(lExpr, operator), List(rExpr)) = tree
 
-      def getValue(v: Any): Option[Any] = try {
-        Some(v.asInstanceOf[Literal].value.value)
+      def extractGetter(expr: Tree): Option[(String, Schema.Type)] = try {
+        val getter = expr match {
+          case Apply(_, List(g)) => g
+          case t => t
+        }
+        val (fieldName, fieldType) = Common.treeToField(c)(schema, c.Expr[T => Any](q"(x: Any) => $getter"))
+        if (fieldName != "" && fieldType != Schema.Type.NULL) Some((fieldName, fieldType)) else None
       } catch {
         case _: Exception => None
       }
@@ -47,75 +54,67 @@ object Predicate {
       val boolOp = Map("$amp$amp" -> "and", "$bar$bar" -> "or").get(operator.toString)
       if (boolOp.isDefined) {
         // expr1 AND|OR expr2
-        val op = newTermName(boolOp.get)
-        val l = treeToPredicate(lExpr)
-        val r = treeToPredicate(rExpr.asInstanceOf[Tree])
-        c.Expr(q"$namespace.FilterApi.$op($l, $r)").asInstanceOf[c.Expr[FilterPredicate]]
+        val (op, l, r) = (newTermName(boolOp.get), parse(lExpr), parse(rExpr))
+        c.Expr(q"$ns.FilterApi.$op($l, $r)").asInstanceOf[c.Expr[FilterPredicate]]
       } else {
         // expr1 COMP expr2
-        val (flipped, constant) = (getValue(lExpr), getValue(rExpr)) match {
-          case (None, Some(v)) => (false, v)  // term COMP constant
-          case (Some(v), None) => (true, v)   // constant COMP term
+        val (flipped, (fieldName, fieldType), valueExpr) = (extractGetter(lExpr), extractGetter(rExpr)) match {
+          case (Some(g), None) => (false, g, rExpr)  // getter COMP value
+          case (None, Some(g)) => (true, g, lExpr)   // value COMP getter
           case _ => throw new RuntimeException("Invalid expression: " + tree)
         }
 
-        val op = if (!flipped) {
-          operator.toString match {
-            case "$greater"    => "gt"
-            case "$less"       => "lt"
-            case "$greater$eq" => "gtEq"
-            case "$less$eq"    => "ltEq"
-            case "$eq$eq"      => "eq"
-            case "$bang$eq"    => "notEq"
-          }
+        def flip(op: String) = if (op.startsWith("gt")) {
+          "lt" + op.substring(2)
+        } else if (op.startsWith("lt")) {
+          "gt" + op.substring(2)
         } else {
-          operator.toString match {
-            case "$greater"    => "lt"
-            case "$less"       => "gt"
-            case "$greater$eq" => "ltEq"
-            case "$less$eq"    => "gtEq"
-            case "$eq$eq"      => "eq"
-            case "$bang$eq"    => "notEq"
-          }
+          op
         }
 
-        val getter = (if (!flipped) lExpr else rExpr) match {
-          case Apply(_, List(g)) => g
-          case t => t
-        }
-
-        val (fieldName, fieldType) = Common.treeToField(c)(schema, c.Expr[T => Any](q"(x: Any) => $getter"))
         val predicateFn = fieldType match {
           case Schema.Type.INT =>
-            mkPredicateFn(tq"java.lang.Integer", "intColumn", q"${constant.asInstanceOf[Int]}")
+            mkPredicateFn(tq"java.lang.Integer", "intColumn", valueExpr)
           case Schema.Type.LONG =>
-            mkPredicateFn(tq"java.lang.Long", "longColumn", q"${constant.asInstanceOf[Long]}")
+            mkPredicateFn(tq"java.lang.Long", "longColumn", valueExpr)
           case Schema.Type.FLOAT =>
-            mkPredicateFn(tq"java.lang.Float", "floatColumn", q"${constant.asInstanceOf[Float]}")
+            mkPredicateFn(tq"java.lang.Float", "floatColumn", valueExpr)
           case Schema.Type.DOUBLE =>
-            mkPredicateFn(tq"java.lang.Double", "doubleColumn", q"${constant.asInstanceOf[Double]}")
+            mkPredicateFn(tq"java.lang.Double", "doubleColumn", valueExpr)
           case Schema.Type.BOOLEAN =>
-            mkPredicateFn(tq"java.lang.Boolean","booleanColumn", q"${constant.asInstanceOf[Boolean]}")
+            mkPredicateFn(tq"java.lang.Boolean","booleanColumn", valueExpr)
           case Schema.Type.STRING =>
-            val binary = q"_root_.parquet.io.api.Binary.fromString(${constant.asInstanceOf[String]})"
+            val binary = q"_root_.parquet.io.api.Binary.fromString($valueExpr)"
             mkPredicateFn(tq"_root_.parquet.io.api.Binary","binaryColumn", binary)
           case _ => throw new RuntimeException("Unsupported value type: " + fieldType)
         }
-        c.Expr(predicateFn(fieldName, op)).asInstanceOf[c.Expr[FilterPredicate]]
+
+        val op = operator.toString match {
+          case "$greater"    => "gt"
+          case "$less"       => "lt"
+          case "$greater$eq" => "gtEq"
+          case "$less$eq"    => "ltEq"
+          case "$eq$eq"      => "eq"
+          case "$bang$eq"    => "notEq"
+          case _             => throw new RuntimeException("Unsupported operator type: " + operator)
+        }
+        val realOp = if (flipped) flip(op) else op
+
+        c.Expr(predicateFn(fieldName, realOp)).asInstanceOf[c.Expr[FilterPredicate]]
       }
     }
 
     def selectToPredicate(tree: Tree): c.Expr[FilterPredicate] = {
       val Select(expr, operator) = tree
       if (operator.toString == "unary_$bang") {
-        val p = treeToPredicate(expr)
-        c.Expr(q"$namespace.FilterApi.not($p)").asInstanceOf[c.Expr[FilterPredicate]]
+        val p = parse(expr)
+        c.Expr(q"$nsApi.not($p)").asInstanceOf[c.Expr[FilterPredicate]]
       } else {
         throw new RuntimeException("Unknown unary operator: " + operator)
       }
     }
 
-    def treeToPredicate(tree: Tree): c.Expr[FilterPredicate] = {
+    def parse(tree: Tree): c.Expr[FilterPredicate] = {
       tree match {
         case Apply(_, _) => applyToPredicate(tree)
         case Select(_, _) => selectToPredicate(tree)
@@ -124,7 +123,7 @@ object Predicate {
     }
 
     val Function(_, body) = p.tree
-    treeToPredicate(body)
+    parse(body)
   }
 
 }
