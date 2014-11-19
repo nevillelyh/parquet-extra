@@ -24,21 +24,23 @@ object Common {
       extract(t, Seq())._2
     }
 
-
     def gettersToField(getters: Seq[String]): (String, Schema.Type) = {
       var node = schema
       var fieldType: Schema.Type = Schema.Type.NULL
 
       val gt = getters.filter(s => s != "get" && s != "toString")
 
+      def fromNullable(s: Schema): Schema = s.getTypes.asScala.find(_.getType != Schema.Type.NULL).get
+
       val fields = gt.zipWithIndex.map { case (g, i) =>
         val field = node.getFields.asScala.find(f => generateGetMethod(schema, f) == g).get
         val next = field.schema()
-        fieldType = next.getType
+        fieldType = if (next.getType == Schema.Type.UNION) fromNullable(next).getType else next.getType
+
         if (i < gt.size - 1) {
           node = next.getType match {
             case Schema.Type.RECORD => next
-            case Schema.Type.UNION => next.getTypes.asScala.find(_.getType != Schema.Type.NULL).get
+            case Schema.Type.UNION => fromNullable(next)
             case Schema.Type.ARRAY => next.getElementType
             case t => throw new RuntimeException(s"Unsupported type: $t")
           }
