@@ -11,6 +11,7 @@ object BuildSettings {
     scalaVersion       := "2.10.4",
     crossScalaVersions := Seq("2.10.4", "2.11.4"),
     scalacOptions      ++= Seq(),
+    javacOptions       ++= Seq("-source", "1.6", "-target", "1.6"),
 
     profileName        := "me.lyh",
     pomExtra           := {
