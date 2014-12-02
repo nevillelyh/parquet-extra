@@ -1,7 +1,7 @@
 [{
     "type": "record",
     "name": "Account",
-    "namespace": "parquet.avro.schema",
+    "namespace": "me.lyh.parquet.avro.schema",
     "doc": "Record for an account",
     "fields": [
         {"name": "id", "type": "int"},
@@ -12,7 +12,7 @@
 }, {
     "type": "record",
     "name": "User",
-    "namespace": "parquet.avro.schema",
+    "namespace": "me.lyh.parquet.avro.schema",
     "doc": "Record for a user",
     "fields": [
         {"name": "id", "type": "int"},
@@ -31,7 +31,7 @@
             "type": {
                 "type": "record",
                 "name": "Address",
-                "namespace": "parquet.avro.schema",
+                "namespace": "me.lyh.parquet.avro.schema",
                 "doc": "Record for an address",
                 "fields": [
                     {"name": "street1", "type": "string"},
@@ -47,7 +47,7 @@
 }, {
     "type": "record",
     "name": "TestRecord",
-    "namespace": "parquet.avro.schema",
+    "namespace": "me.lyh.parquet.avro.schema",
     "doc": "Record for testing",
     "fields": [
         {"name": "int_field", "type": "int"},

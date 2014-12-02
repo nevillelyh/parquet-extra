@@ -1,8 +1,8 @@
-package parquet.avro
+package me.lyh.parquet.avro
 
-import org.apache.avro.Schema
-import org.apache.avro.specific.{ SpecificRecord => SR }
 import _root_.parquet.filter2.predicate.FilterPredicate
+import org.apache.avro.Schema
+import org.apache.avro.specific.{SpecificRecord => SR}
 
 import scala.language.experimental.macros
 import scala.reflect.macros.Context

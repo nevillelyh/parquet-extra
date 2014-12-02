@@ -1,8 +1,8 @@
-package parquet.avro
+package me.lyh.parquet.avro
 
 import org.apache.avro.Schema
 import org.apache.avro.compiler.specific.SpecificCompiler._
-import org.apache.avro.specific.{ SpecificRecord => SR }
+import org.apache.avro.specific.{SpecificRecord => SR}
 
 import scala.collection.JavaConverters._
 import scala.language.experimental.macros

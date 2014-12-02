@@ -1,4 +1,4 @@
-package parquet.avro
+package me.lyh.parquet.avro
 
 import org.apache.avro.Schema
 import org.apache.avro.specific.{ SpecificRecord => SR }

@@ -1,11 +1,11 @@
-package parquet.avro
+package me.lyh.parquet.avro
 
-import org.scalatest._
-import _root_.parquet.avro.schema.TestRecord
-import _root_.parquet.filter2.predicate.{ FilterApi => F }
+import java.lang.{Boolean => JBoolean, Double => JDouble, Float => JFloat, Integer => JInt, Long => JLong}
+
+import _root_.parquet.filter2.predicate.{FilterApi => F}
 import _root_.parquet.io.api.Binary
-
-import java.lang.{ Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
+import me.lyh.parquet.avro.schema.TestRecord
+import org.scalatest._
 
 class PredicateTest extends FlatSpec with Matchers {
 

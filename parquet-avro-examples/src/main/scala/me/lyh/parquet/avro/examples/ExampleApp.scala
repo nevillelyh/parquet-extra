@@ -1,8 +1,7 @@
-package parquet.avro.examples
+package me.lyh.parquet.avro.examples
 
-import parquet.avro.Predicate
-import parquet.avro.Projection
-import parquet.avro.schema.User
+import me.lyh.parquet.avro.{Predicate, Projection}
+import me.lyh.parquet.avro.schema.User
 
 object ExampleApp extends App {
   val s = Projection[User](
