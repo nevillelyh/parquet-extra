@@ -46,6 +46,8 @@ object ParquetAvroExtraBuild extends Build {
     settings = buildSettings ++ Seq(
       run <<= run in Compile in parquetAvroExamples)
   ).settings(
+    publish := {},
+    publishLocal := {},
     publishArtifact := false
   ).aggregate(
     parquetAvroExtra,
@@ -83,6 +85,8 @@ object ParquetAvroExtraBuild extends Build {
     file("parquet-avro-schema"),
     settings = buildSettings ++ sbtavro.SbtAvro.avroSettings
   ).settings(
+    publish := {},
+    publishLocal := {},
     publishArtifact := false
   )
 
@@ -93,6 +97,8 @@ object ParquetAvroExtraBuild extends Build {
       libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
     )
   ).settings(
+    publish := {},
+    publishLocal := {},
     publishArtifact := false
   ).dependsOn(
     parquetAvroExtra,
