@@ -1,17 +1,43 @@
 import sbt._
 import Keys._
+import xerial.sbt.Sonatype
+import xerial.sbt.Sonatype.SonatypeKeys._
 
 object BuildSettings {
-  val buildSettings = Defaults.defaultSettings ++ Seq (
-    organization  := "parquet",
+  val buildSettings = Defaults.defaultSettings ++ Sonatype.sonatypeSettings ++ Seq (
+    organization  := "me.lyh",
     version       := "0.1.0-SNAPSHOT",
+
     scalaVersion  := "2.10.4",
     crossScalaVersions := Seq("2.10.4", "2.11.2"),
-    scalacOptions ++= Seq()
+    scalacOptions ++= Seq(),
+
+    profileName   := "me.lyh",
+    pomExtra      := {
+      <url>https://github.com/nevillelyh/parquet-avro-extra</url>
+      <licenses>
+        <license>
+          <name>Apache 2</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+      </licenses>
+      <scm>
+        <connection>scm:git:git@github.com:nevillelyh/parquet-avro-extra.git</connection>
+        <developerConnection>scm:git:git@github.com:nevillelyh/parquet-avro-extra.git</developerConnection>
+        <url>github.com/nevillelyh/parquet-avro-extra</url>
+      </scm>
+      <developers>
+        <developer>
+          <id>sinisa_lyh</id>
+          <name>Neville Li</name>
+          <url>https://twitter.com/sinisa_lyh</url>
+        </developer>
+      </developers>
+    }
   )
 }
 
-object ScalaMacroDebugBuild extends Build {
+object ParquetAvroExtraBuild extends Build {
   import BuildSettings._
 
   lazy val root: Project = Project(
