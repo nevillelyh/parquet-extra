@@ -5,15 +5,15 @@ import xerial.sbt.Sonatype.SonatypeKeys._
 
 object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Sonatype.sonatypeSettings ++ Seq (
-    organization  := "me.lyh",
-    version       := "0.1.1-SNAPSHOT",
+    organization       := "me.lyh",
+    version            := "0.1.1-SNAPSHOT",
 
-    scalaVersion  := "2.10.4",
-    crossScalaVersions := Seq("2.10.4", "2.11.2"),
-    scalacOptions ++= Seq(),
+    scalaVersion       := "2.10.4",
+    crossScalaVersions := Seq("2.10.4", "2.11.4"),
+    scalacOptions      ++= Seq(),
 
-    profileName   := "me.lyh",
-    pomExtra      := {
+    profileName        := "me.lyh",
+    pomExtra           := {
       <url>https://github.com/nevillelyh/parquet-avro-extra</url>
       <licenses>
         <license>
@@ -46,8 +46,8 @@ object ParquetAvroExtraBuild extends Build {
     settings = buildSettings ++ Seq(
       run <<= run in Compile in parquetAvroExamples)
   ).settings(
-    publish := {},
-    publishLocal := {},
+    publish         := {},
+    publishLocal    := {},
     publishArtifact := false
   ).aggregate(
     parquetAvroExtra,
@@ -97,8 +97,8 @@ object ParquetAvroExtraBuild extends Build {
       libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
     )
   ).settings(
-    publish := {},
-    publishLocal := {},
+    publish         := {},
+    publishLocal    := {},
     publishArtifact := false
   ).dependsOn(
     parquetAvroExtra,
