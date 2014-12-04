@@ -72,35 +72,41 @@ object Predicate {
           op
         }
 
-        val predicateFn = fieldType match {
-          case Schema.Type.INT =>
-            mkPredicateFn(tq"java.lang.Integer", "intColumn", valueExpr)
-          case Schema.Type.LONG =>
-            mkPredicateFn(tq"java.lang.Long", "longColumn", valueExpr)
-          case Schema.Type.FLOAT =>
-            mkPredicateFn(tq"java.lang.Float", "floatColumn", valueExpr)
-          case Schema.Type.DOUBLE =>
-            mkPredicateFn(tq"java.lang.Double", "doubleColumn", valueExpr)
-          case Schema.Type.BOOLEAN =>
-            mkPredicateFn(tq"java.lang.Boolean","booleanColumn", valueExpr)
-          case Schema.Type.STRING =>
-            val binary = q"_root_.parquet.io.api.Binary.fromString($valueExpr)"
-            mkPredicateFn(tq"_root_.parquet.io.api.Binary","binaryColumn", binary)
-          case _ => throw new RuntimeException("Unsupported value type: " + fieldType)
-        }
+        if (operator.toString == "Boolean2boolean") {
+          // implicit boolean predicate, e.g. (_.isValid)
+          val predicateFn = mkPredicateFn(tq"java.lang.Boolean","booleanColumn", q"true")
+          c.Expr(predicateFn(fieldName, "eq")).asInstanceOf[c.Expr[FilterPredicate]]
+        } else {
 
-        val op = operator.toString match {
-          case "$greater"    => "gt"
-          case "$less"       => "lt"
-          case "$greater$eq" => "gtEq"
-          case "$less$eq"    => "ltEq"
-          case "$eq$eq"      => "eq"
-          case "$bang$eq"    => "notEq"
-          case _             => throw new RuntimeException("Unsupported operator type: " + operator)
-        }
-        val realOp = if (flipped) flip(op) else op
+          val predicateFn = fieldType match {
+            case Schema.Type.INT =>
+              mkPredicateFn(tq"java.lang.Integer", "intColumn", valueExpr)
+            case Schema.Type.LONG =>
+              mkPredicateFn(tq"java.lang.Long", "longColumn", valueExpr)
+            case Schema.Type.FLOAT =>
+              mkPredicateFn(tq"java.lang.Float", "floatColumn", valueExpr)
+            case Schema.Type.DOUBLE =>
+              mkPredicateFn(tq"java.lang.Double", "doubleColumn", valueExpr)
+            case Schema.Type.BOOLEAN =>
+              mkPredicateFn(tq"java.lang.Boolean","booleanColumn", valueExpr)
+            case Schema.Type.STRING =>
+              val binary = q"_root_.parquet.io.api.Binary.fromString($valueExpr)"
+              mkPredicateFn(tq"_root_.parquet.io.api.Binary","binaryColumn", binary)
+            case _ => throw new RuntimeException("Unsupported value type: " + fieldType)
+          }
 
-        c.Expr(predicateFn(fieldName, realOp)).asInstanceOf[c.Expr[FilterPredicate]]
+          val op = operator.toString match {
+            case "$greater"    => "gt"
+            case "$less"       => "lt"
+            case "$greater$eq" => "gtEq"
+            case "$less$eq"    => "ltEq"
+            case "$eq$eq"      => "eq"
+            case "$bang$eq"    => "notEq"
+            case _             => throw new RuntimeException("Unsupported operator type: " + operator)
+          }
+          val realOp = if (flipped) flip(op) else op
+          c.Expr(predicateFn(fieldName, realOp)).asInstanceOf[c.Expr[FilterPredicate]]
+        }
       }
     }
 
