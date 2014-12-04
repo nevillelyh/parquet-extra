@@ -45,7 +45,7 @@ class PredicateTest extends FlatSpec with Matchers {
 
     val booleanVal = true
     Predicate[TestRecord](_.getBooleanField == booleanVal) should equal (F.eq(boolCol, JBoolean.valueOf(true)))
-    Predicate[TestRecord](_.getBooleanField == !booleanVal) should equal (F.eq(boolCol, JBoolean.valueOf(!true)))
+    Predicate[TestRecord](_.getBooleanField == !booleanVal) should equal (F.eq(boolCol, JBoolean.valueOf(false)))
 
     val stringVal = "abc"
     Predicate[TestRecord](_.getStringField.toString > stringVal) should equal (F.gt(strCol, Binary.fromString("abc")))
@@ -85,7 +85,7 @@ class PredicateTest extends FlatSpec with Matchers {
     val int10 = JInt.valueOf(10)
 
     Predicate[TestRecord](10 < _.getIntField) should equal (F.gt(intCol, int10))
-    Predicate[TestRecord](10 >_.getIntField) should equal (F.lt(intCol, int10))
+    Predicate[TestRecord](10 > _.getIntField) should equal (F.lt(intCol, int10))
     Predicate[TestRecord](10 <= _.getIntField) should equal (F.gtEq(intCol, int10))
     Predicate[TestRecord](10 >= _.getIntField) should equal (F.ltEq(intCol, int10))
     Predicate[TestRecord](10 == _.getIntField) should equal (F.eq(intCol, int10))
