@@ -51,10 +51,10 @@ object Predicate {
         case _: Exception => None
       }
 
-      val boolOp = Map("$amp$amp" -> "and", "$bar$bar" -> "or").get(operator.toString)
-      if (boolOp.isDefined) {
+      val logicalOp = Map("$amp$amp" -> "and", "$bar$bar" -> "or").get(operator.toString)
+      if (logicalOp.isDefined) {
         // expr1 AND|OR expr2
-        val (op, l, r) = (newTermName(boolOp.get), parse(lExpr), parse(rExpr))
+        val (op, l, r) = (newTermName(logicalOp.get), parse(lExpr), parse(rExpr))
         c.Expr(q"$ns.FilterApi.$op($l, $r)").asInstanceOf[c.Expr[FilterPredicate]]
       } else {
         // expr1 COMP expr2

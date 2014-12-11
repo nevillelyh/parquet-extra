@@ -92,7 +92,7 @@ class PredicateTest extends FlatSpec with Matchers {
     Predicate[TR](10 != _.getIntField) should equal (F.notEq(intCol, int10))
   }
 
-  "Predicate" should "support not operator" in {
+  "Predicate" should "support logical not operator" in {
     val int10 = JInt.valueOf(10)
 
     Predicate[TR](r => !(r.getIntField > 10)) should equal (F.not(F.gt(intCol, int10)))
@@ -103,7 +103,7 @@ class PredicateTest extends FlatSpec with Matchers {
     Predicate[TR](r => !(r.getIntField != 10)) should equal (F.not(F.notEq(intCol, int10)))
   }
 
-  "Predicate" should "support binary boolean operators" in {
+  "Predicate" should "support binary logical operators" in {
     val intGt = F.gt(intCol, JInt.valueOf(10))
     val longLt = F.lt(longCol, JLong.valueOf(20))
 
