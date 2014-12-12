@@ -92,16 +92,15 @@ object Predicate {
           val predicateFn = mkPredicateFn(tq"java.lang.Boolean","booleanColumn", q"true")
           c.Expr(predicateFn(fieldName, "eq")).asInstanceOf[c.Expr[FilterPredicate]]
         } else {
-
           val predicateFn = fieldType match {
             case Schema.Type.INT =>
-              mkPredicateFn(tq"java.lang.Integer", "intColumn", valueExpr)
+              mkPredicateFn(tq"java.lang.Integer", "intColumn", q"${valueExpr}.toInt")
             case Schema.Type.LONG =>
-              mkPredicateFn(tq"java.lang.Long", "longColumn", valueExpr)
+              mkPredicateFn(tq"java.lang.Long", "longColumn", q"${valueExpr}.toLong")
             case Schema.Type.FLOAT =>
-              mkPredicateFn(tq"java.lang.Float", "floatColumn", valueExpr)
+              mkPredicateFn(tq"java.lang.Float", "floatColumn", q"${valueExpr}.toFloat")
             case Schema.Type.DOUBLE =>
-              mkPredicateFn(tq"java.lang.Double", "doubleColumn", valueExpr)
+              mkPredicateFn(tq"java.lang.Double", "doubleColumn", q"${valueExpr}.toDouble")
             case Schema.Type.BOOLEAN =>
               mkPredicateFn(tq"java.lang.Boolean","booleanColumn", valueExpr)
             case Schema.Type.STRING =>

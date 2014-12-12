@@ -16,6 +16,40 @@ class PredicateTest extends FlatSpec with Matchers {
   val boolCol = F.booleanColumn("boolean_field")
   val strCol = F.binaryColumn("string_field")
 
+  "Predicate" should "support type coercion" in {
+    val intP = F.gt(intCol, JInt.valueOf(10))
+    Predicate[TR](_.getIntField > 10l) shouldEqual intP
+    Predicate[TR](10l < _.getIntField) shouldEqual intP
+    Predicate[TR](_.getIntField > 10.0f) shouldEqual intP
+    Predicate[TR](10.0f < _.getIntField) shouldEqual intP
+    Predicate[TR](_.getIntField > 10.0) shouldEqual intP
+    Predicate[TR](10.0 < _.getIntField) shouldEqual intP
+
+    val longP = F.gt(longCol, JLong.valueOf(10))
+    Predicate[TR](_.getLongField > 10) shouldEqual longP
+    Predicate[TR](10 < _.getLongField) shouldEqual longP
+    Predicate[TR](_.getLongField > 10.0f) shouldEqual longP
+    Predicate[TR](10.0f < _.getLongField) shouldEqual longP
+    Predicate[TR](_.getLongField > 10.0) shouldEqual longP
+    Predicate[TR](10.0 < _.getLongField) shouldEqual longP
+
+    val floatP = F.gt(floatCol, JFloat.valueOf(10))
+    Predicate[TR](_.getFloatField > 10) shouldEqual floatP
+    Predicate[TR](10 < _.getFloatField) shouldEqual floatP
+    Predicate[TR](_.getFloatField > 10l) shouldEqual floatP
+    Predicate[TR](10l < _.getFloatField) shouldEqual floatP
+    Predicate[TR](_.getFloatField > 10.0) shouldEqual floatP
+    Predicate[TR](10.0 < _.getFloatField) shouldEqual floatP
+
+    val doubleP = F.gt(doubleCol, JDouble.valueOf(10))
+    Predicate[TR](_.getDoubleField > 10) shouldEqual doubleP
+    Predicate[TR](10 < _.getDoubleField) shouldEqual doubleP
+    Predicate[TR](_.getDoubleField > 10l) shouldEqual doubleP
+    Predicate[TR](10l < _.getDoubleField) shouldEqual doubleP
+    Predicate[TR](_.getDoubleField > 10.0f) shouldEqual doubleP
+    Predicate[TR](10.0f < _.getDoubleField) shouldEqual doubleP
+  }
+
   "Predicate" should "support all primitive types" in {
     Predicate[TR](_.getIntField > 10) shouldEqual F.gt(intCol, JInt.valueOf(10))
     Predicate[TR](_.getIntField > 10) shouldEqual F.gt(intCol, JInt.valueOf(10))
