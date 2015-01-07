@@ -7,12 +7,27 @@ import org.apache.avro.specific.{SpecificRecord => SR}
 import scala.language.experimental.macros
 import scala.reflect.macros.Context
 
+case class Predicates[T](native: T => Boolean, parquet: FilterPredicate)
+
 object Predicate {
 
   def apply[T <: SR](p: T => Boolean): FilterPredicate = macro applyImpl[T]
 
   def applyImpl[T <: SR : c.WeakTypeTag](c: Context)
-                                        (p: c.Expr[T => Boolean]): c.Expr[FilterPredicate] = {
+                                        (p: c.Expr[T => Boolean]): c.Expr[FilterPredicate] = buildFilterPredicate(c)(p)
+
+  def build[T <: SR](p: T => Boolean): Predicates[T] = macro buildImpl[T]
+
+  def buildImpl[T <: SR : c.WeakTypeTag](c: Context)
+                                        (p: c.Expr[T => Boolean]): c.Expr[Predicates[T]] = {
+    import c.universe._
+    val f = buildFilterPredicate(c)(p)
+    c.Expr(q"Predicates($p, $f)").asInstanceOf[c.Expr[Predicates[T]]]
+
+  }
+
+  def buildFilterPredicate[T <: SR : c.WeakTypeTag](c: Context)
+                                             (p: c.Expr[T => Boolean]): c.Expr[FilterPredicate] = {
     import c.universe._
     val ns = q"_root_.parquet.filter2.predicate"
     val nsApi = q"$ns.FilterApi"

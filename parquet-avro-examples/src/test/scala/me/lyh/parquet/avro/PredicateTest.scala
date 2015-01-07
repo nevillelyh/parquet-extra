@@ -125,4 +125,16 @@ class PredicateTest extends FlatSpec with Matchers {
     } shouldEqual F.or(F.not(intGt), F.not(longLt))
   }
 
+  "Predicate" should "build Scala lambda" in {
+    val record = new TR(10, 20l, 30.0f, 40.0, true, "test")
+
+    val t1 = Predicate.build[TR](r => r.getIntField > 0 && r.getLongField > 0l)
+    t1.native(record) shouldBe true
+    t1.parquet shouldEqual F.and(F.gt(intCol, JInt.valueOf(0)), F.gt(longCol, JLong.valueOf(0l)))
+
+    val t2 = Predicate.build[TR](r => r.getIntField > 100 && r.getLongField > 100l)
+    t2.native(record) shouldBe false
+    t2.parquet shouldEqual F.and(F.gt(intCol, JInt.valueOf(100)), F.gt(longCol, JLong.valueOf(100l)))
+  }
+
 }
