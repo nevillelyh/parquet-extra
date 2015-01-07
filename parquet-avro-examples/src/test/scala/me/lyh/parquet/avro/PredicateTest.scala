@@ -21,7 +21,7 @@ class PredicateTest extends FlatSpec with Matchers {
     Predicate[TR](_.getIntField > 10) shouldEqual F.gt(intCol, JInt.valueOf(10))
     Predicate[TR](_.getLongField > 10l) shouldEqual F.gt(longCol, JLong.valueOf(10))
     Predicate[TR](_.getFloatField > 10f) shouldEqual F.gt(floatCol, JFloat.valueOf(10))
-    Predicate[TR](_.getDoubleField > 10.0) shouldEqual F.gt(doubleCol, JDouble.valueOf(10.0))
+    Predicate[TR](_.getDoubleField > 10.0) shouldEqual F.gt(doubleCol, JDouble.valueOf(10))
     Predicate[TR](_.getBooleanField == true) shouldEqual F.eq(boolCol, JBoolean.valueOf(true))
 
     Predicate[TR](_.getStringField.toString > "abc") shouldEqual F.gt(strCol, Binary.fromString("abc"))
@@ -130,11 +130,11 @@ class PredicateTest extends FlatSpec with Matchers {
 
     val t1 = Predicate.build[TR](r => r.getIntField > 0 && r.getLongField > 0l)
     t1.native(record) shouldBe true
-    t1.parquet shouldEqual F.and(F.gt(intCol, JInt.valueOf(0)), F.gt(longCol, JLong.valueOf(0l)))
+    t1.parquet shouldEqual F.and(F.gt(intCol, JInt.valueOf(0)), F.gt(longCol, JLong.valueOf(0)))
 
     val t2 = Predicate.build[TR](r => r.getIntField > 100 && r.getLongField > 100l)
     t2.native(record) shouldBe false
-    t2.parquet shouldEqual F.and(F.gt(intCol, JInt.valueOf(100)), F.gt(longCol, JLong.valueOf(100l)))
+    t2.parquet shouldEqual F.and(F.gt(intCol, JInt.valueOf(100)), F.gt(longCol, JLong.valueOf(100)))
   }
 
 }
