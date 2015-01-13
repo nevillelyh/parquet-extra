@@ -89,6 +89,15 @@ class PredicateTest extends FlatSpec with Matchers {
     } shouldEqual F.gt(strCol, Binary.fromString("abc" + "x"))
   }
 
+  "Predicate" should "support null values" in {
+    Predicate[TR](_.getIntField == null) shouldEqual F.eq(intCol, null.asInstanceOf[JInt])
+    Predicate[TR](_.getLongField == null) shouldEqual F.eq(longCol, null.asInstanceOf[JLong])
+    Predicate[TR](_.getFloatField == null) shouldEqual F.eq(floatCol, null.asInstanceOf[JFloat])
+    Predicate[TR](_.getDoubleField  == null) shouldEqual F.eq(doubleCol, null.asInstanceOf[JDouble])
+    Predicate[TR](_.getBooleanField == null) shouldEqual F.eq(boolCol, null.asInstanceOf[JBoolean])
+    Predicate[TR](_.getStringField == null) shouldEqual F.eq(strCol, null.asInstanceOf[Binary])
+  }
+
   "Predicate" should "support implicit boolean predicate" in {
     val trueVal = JBoolean.valueOf(true)
     val intGt = F.gt(intCol, JInt.valueOf(10))

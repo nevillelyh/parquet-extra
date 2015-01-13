@@ -92,20 +92,33 @@ object Predicate {
           val predicateFn = mkPredicateFn(tq"java.lang.Boolean","booleanColumn", q"true")
           c.Expr(predicateFn(fieldName, "eq")).asInstanceOf[c.Expr[FilterPredicate]]
         } else {
+          // value can be a null literal with no {toInt, toLong, ...} methods
+          val isNullLiteral = try {
+            val Literal(Constant(null)) = valueExpr
+            true
+          } catch {
+            case _: Exception => false
+          }
+
           val predicateFn = fieldType match {
             case Schema.Type.INT =>
-              mkPredicateFn(tq"java.lang.Integer", "intColumn", q"${valueExpr}.toInt")
+              val value = if (isNullLiteral) q"null" else q"$valueExpr.toInt"
+              mkPredicateFn(tq"java.lang.Integer", "intColumn", value)
             case Schema.Type.LONG =>
-              mkPredicateFn(tq"java.lang.Long", "longColumn", q"${valueExpr}.toLong")
+              val value = if (isNullLiteral) q"null" else q"$valueExpr.toLong"
+              mkPredicateFn(tq"java.lang.Long", "longColumn", value)
             case Schema.Type.FLOAT =>
-              mkPredicateFn(tq"java.lang.Float", "floatColumn", q"${valueExpr}.toFloat")
+              val value = if (isNullLiteral) q"null" else q"$valueExpr.toFloat"
+              mkPredicateFn(tq"java.lang.Float", "floatColumn", value)
             case Schema.Type.DOUBLE =>
-              mkPredicateFn(tq"java.lang.Double", "doubleColumn", q"${valueExpr}.toDouble")
+              val value = if (isNullLiteral) q"null" else q"$valueExpr.toDouble"
+              mkPredicateFn(tq"java.lang.Double", "doubleColumn", value)
             case Schema.Type.BOOLEAN =>
-              mkPredicateFn(tq"java.lang.Boolean","booleanColumn", valueExpr)
+              val value = if (isNullLiteral) q"null" else valueExpr
+              mkPredicateFn(tq"java.lang.Boolean","booleanColumn", value)
             case Schema.Type.STRING =>
-              val binary = q"_root_.parquet.io.api.Binary.fromString($valueExpr)"
-              mkPredicateFn(tq"_root_.parquet.io.api.Binary","binaryColumn", binary)
+              val value = if (isNullLiteral) q"null" else q"_root_.parquet.io.api.Binary.fromString($valueExpr)"
+              mkPredicateFn(tq"_root_.parquet.io.api.Binary","binaryColumn", value)
             case _ => throw new RuntimeException("Unsupported value type: " + fieldType)
           }
 
