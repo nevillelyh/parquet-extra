@@ -22,7 +22,7 @@ object Predicate {
                                         (p: c.Expr[T => Boolean]): c.Expr[Predicates[T]] = {
     import c.universe._
     val f = buildFilterPredicate(c)(p)
-    c.Expr(q"Predicates($p, $f)").asInstanceOf[c.Expr[Predicates[T]]]
+    c.Expr(q"_root_.me.lyh.parquet.avro.Predicates($p, $f)").asInstanceOf[c.Expr[Predicates[T]]]
 
   }
 

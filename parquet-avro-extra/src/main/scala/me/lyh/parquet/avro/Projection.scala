@@ -19,7 +19,7 @@ object Projection {
     val schemaString = schema.toString(false)
     val columnPaths = getters.map(Common.treeToField(c)(schema, _)._1)
 
-    c.Expr[Schema](q"Projection.project($schemaString, ..$columnPaths)")
+    c.Expr[Schema](q"_root_.me.lyh.parquet.avro.Projection.project($schemaString, ..$columnPaths)")
   }
 
   def project(schema: String, fields: String*): Schema = {
