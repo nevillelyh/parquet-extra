@@ -100,18 +100,19 @@ object Predicate {
             case _: Exception => false
           }
 
+          val nullCase = cq"_: NullPointerException => null"
           val predicateFn = fieldType match {
             case Schema.Type.INT =>
-              val value = if (isNullLiteral) q"null" else q"$valueExpr.toInt"
+              val value = if (isNullLiteral) q"null" else q"(try { $valueExpr.toInt } catch { case $nullCase })"
               mkPredicateFn(tq"java.lang.Integer", "intColumn", value)
             case Schema.Type.LONG =>
-              val value = if (isNullLiteral) q"null" else q"$valueExpr.toLong"
+              val value = if (isNullLiteral) q"null" else q"(try { $valueExpr.toLong } catch { case $nullCase })"
               mkPredicateFn(tq"java.lang.Long", "longColumn", value)
             case Schema.Type.FLOAT =>
-              val value = if (isNullLiteral) q"null" else q"$valueExpr.toFloat"
+              val value = if (isNullLiteral) q"null" else q"(try { $valueExpr.toFloat } catch { case $nullCase })"
               mkPredicateFn(tq"java.lang.Float", "floatColumn", value)
             case Schema.Type.DOUBLE =>
-              val value = if (isNullLiteral) q"null" else q"$valueExpr.toDouble"
+              val value = if (isNullLiteral) q"null" else q"(try { $valueExpr.toDouble } catch { case $nullCase })"
               mkPredicateFn(tq"java.lang.Double", "doubleColumn", value)
             case Schema.Type.BOOLEAN =>
               val value = if (isNullLiteral) q"null" else valueExpr

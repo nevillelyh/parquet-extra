@@ -90,12 +90,23 @@ class PredicateTest extends FlatSpec with Matchers {
   }
 
   "Predicate" should "support null values" in {
+    // null literals
     Predicate[TR](_.getIntField == null) shouldEqual F.eq(intCol, null.asInstanceOf[JInt])
     Predicate[TR](_.getLongField == null) shouldEqual F.eq(longCol, null.asInstanceOf[JLong])
     Predicate[TR](_.getFloatField == null) shouldEqual F.eq(floatCol, null.asInstanceOf[JFloat])
     Predicate[TR](_.getDoubleField  == null) shouldEqual F.eq(doubleCol, null.asInstanceOf[JDouble])
     Predicate[TR](_.getBooleanField == null) shouldEqual F.eq(boolCol, null.asInstanceOf[JBoolean])
     Predicate[TR](_.getStringField == null) shouldEqual F.eq(strCol, null.asInstanceOf[Binary])
+
+    // null boxed values
+    val i: JInt = null
+    val l: JLong = null
+    val f: JFloat = null
+    val d: JDouble = null
+    Predicate[TR](_.getIntField == i) shouldEqual F.eq(intCol, null.asInstanceOf[JInt])
+    Predicate[TR](_.getLongField == l) shouldEqual F.eq(longCol, null.asInstanceOf[JLong])
+    Predicate[TR](_.getFloatField == f) shouldEqual F.eq(floatCol, null.asInstanceOf[JFloat])
+    Predicate[TR](_.getDoubleField  == d) shouldEqual F.eq(doubleCol, null.asInstanceOf[JDouble])
   }
 
   "Predicate" should "support implicit boolean predicate" in {
