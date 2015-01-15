@@ -26,7 +26,23 @@ object Predicate {
 
   }
 
-  def buildFilterPredicate[T <: SR : c.WeakTypeTag](c: Context)
+  private val logicalOps = Map("$amp$amp" -> "and", "$bar$bar" -> "or")
+
+  private val compareOps = Map(
+    "$greater"    -> "gt",
+    "$less"       -> "lt",
+    "$greater$eq" -> "gtEq",
+    "$less$eq"    -> "ltEq",
+    "$eq$eq"      -> "eq",
+    "$bang$eq"    -> "notEq")
+
+  private val numericTypes = Map(
+    Schema.Type.INT    -> ("Integer", "intColumn", "toInt"),
+    Schema.Type.LONG   -> ("Long", "longColumn", "toLong"),
+    Schema.Type.FLOAT  -> ("Float", "floatColumn", "toFloat"),
+    Schema.Type.DOUBLE -> ("Double", "doubleColumn", "toDouble"))
+
+  private def buildFilterPredicate[T <: SR : c.WeakTypeTag](c: Context)
                                              (p: c.Expr[T => Boolean]): c.Expr[FilterPredicate] = {
     import c.universe._
     val ns = q"_root_.parquet.filter2.predicate"
@@ -66,7 +82,7 @@ object Predicate {
         case _: Exception => None
       }
 
-      val logicalOp = Map("$amp$amp" -> "and", "$bar$bar" -> "or").get(operator.toString)
+      val logicalOp = logicalOps.get(operator.toString)
       if (logicalOp.isDefined) {
         // expr1 AND|OR expr2
         val (op, l, r) = (newTermName(logicalOp.get), parse(lExpr), parse(rExpr))
@@ -100,38 +116,30 @@ object Predicate {
             case _: Exception => false
           }
 
-          val nullCase = cq"_: NullPointerException => null"
           val predicateFn = fieldType match {
-            case Schema.Type.INT =>
-              val value = if (isNullLiteral) q"null" else q"(try { $valueExpr.toInt } catch { case $nullCase })"
-              mkPredicateFn(tq"java.lang.Integer", "intColumn", value)
-            case Schema.Type.LONG =>
-              val value = if (isNullLiteral) q"null" else q"(try { $valueExpr.toLong } catch { case $nullCase })"
-              mkPredicateFn(tq"java.lang.Long", "longColumn", value)
-            case Schema.Type.FLOAT =>
-              val value = if (isNullLiteral) q"null" else q"(try { $valueExpr.toFloat } catch { case $nullCase })"
-              mkPredicateFn(tq"java.lang.Float", "floatColumn", value)
-            case Schema.Type.DOUBLE =>
-              val value = if (isNullLiteral) q"null" else q"(try { $valueExpr.toDouble } catch { case $nullCase })"
-              mkPredicateFn(tq"java.lang.Double", "doubleColumn", value)
+            case t if numericTypes.contains(t) =>
+              val (cType, cFn, vFn) = numericTypes(t)
+              val cTypeName = tq"java.lang.${newTypeName(cType)}"
+              val vFnName = newTermName(vFn)
+              val nullCase = cq"_: NullPointerException => null"
+              val value = if (isNullLiteral) q"null" else q"(try { $valueExpr.$vFnName } catch { case $nullCase })"
+              mkPredicateFn(cTypeName, cFn, value)
+
             case Schema.Type.BOOLEAN =>
               val value = if (isNullLiteral) q"null" else valueExpr
               mkPredicateFn(tq"java.lang.Boolean","booleanColumn", value)
+
             case Schema.Type.STRING =>
-              val value = if (isNullLiteral) q"null" else q"_root_.parquet.io.api.Binary.fromString($valueExpr)"
+              val value = if (isNullLiteral) q"null"  else q"_root_.parquet.io.api.Binary.fromString($valueExpr)"
               mkPredicateFn(tq"_root_.parquet.io.api.Binary","binaryColumn", value)
+
             case _ => throw new RuntimeException("Unsupported value type: " + fieldType)
           }
 
-          val op = operator.toString match {
-            case "$greater"    => "gt"
-            case "$less"       => "lt"
-            case "$greater$eq" => "gtEq"
-            case "$less$eq"    => "ltEq"
-            case "$eq$eq"      => "eq"
-            case "$bang$eq"    => "notEq"
-            case _             => throw new RuntimeException("Unsupported operator type: " + operator)
+          if (!compareOps.contains(operator.toString)) {
+            throw new RuntimeException("Unsupported operator type: " + operator)
           }
+          val op = compareOps(operator.toString)
           val realOp = if (flipped) flip(op) else op
           c.Expr(predicateFn(fieldName, realOp)).asInstanceOf[c.Expr[FilterPredicate]]
         }
