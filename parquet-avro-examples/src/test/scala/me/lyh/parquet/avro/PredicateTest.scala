@@ -16,7 +16,66 @@ class PredicateTest extends FlatSpec with Matchers {
   val boolCol = F.booleanColumn("boolean_field")
   val strCol = F.binaryColumn("string_field")
 
-  "Predicate" should "support type coercion" in {
+  "Predicate.apply(p: T => Boolean)" should "support all primitive types" in {
+    Predicate[TR](_.getIntField > 10) shouldEqual F.gt(intCol, JInt.valueOf(10))
+    Predicate[TR](_.getIntField > 10) shouldEqual F.gt(intCol, JInt.valueOf(10))
+    Predicate[TR](_.getLongField > 10l) shouldEqual F.gt(longCol, JLong.valueOf(10))
+    Predicate[TR](_.getFloatField > 10f) shouldEqual F.gt(floatCol, JFloat.valueOf(10))
+    Predicate[TR](_.getDoubleField > 10.0) shouldEqual F.gt(doubleCol, JDouble.valueOf(10))
+    Predicate[TR](_.getBooleanField == true) shouldEqual F.eq(boolCol, JBoolean.valueOf(true))
+
+    Predicate[TR](_.getStringField.toString > "abc") shouldEqual F.gt(strCol, Binary.fromString("abc"))
+  }
+
+  it should "support all primitive values" in {
+    val intVal = 10
+    Predicate[TR](_.getIntField > intVal) shouldEqual F.gt(intCol, JInt.valueOf(10))
+    Predicate[TR](_.getIntField > intVal + 1) shouldEqual F.gt(intCol, JInt.valueOf(10 + 1))
+
+    val longVal = 10l
+    Predicate[TR](_.getLongField > longVal) shouldEqual F.gt(longCol, JLong.valueOf(10))
+    Predicate[TR](_.getLongField > longVal + 1) shouldEqual F.gt(longCol, JLong.valueOf(10 + 1))
+
+    val floatVal = 10f
+    Predicate[TR](_.getFloatField > floatVal) shouldEqual F.gt(floatCol, JFloat.valueOf(10))
+    Predicate[TR](_.getFloatField > floatVal + 1) shouldEqual F.gt(floatCol, JFloat.valueOf(10 + 1))
+
+    val doubleVal = 10.0
+    Predicate[TR](_.getDoubleField > doubleVal) shouldEqual F.gt(doubleCol, JDouble.valueOf(10))
+    Predicate[TR](_.getDoubleField > doubleVal + 1) shouldEqual F.gt(doubleCol, JDouble.valueOf(10 + 1))
+
+    val booleanVal = true
+    Predicate[TR](_.getBooleanField == booleanVal) shouldEqual F.eq(boolCol, JBoolean.valueOf(true))
+    Predicate[TR](_.getBooleanField == !booleanVal) shouldEqual F.eq(boolCol, JBoolean.valueOf(false))
+
+    val stringVal = "abc"
+    Predicate[TR](_.getStringField.toString > stringVal) shouldEqual F.gt(strCol, Binary.fromString("abc"))
+    Predicate[TR] {
+      _.getStringField.toString > stringVal + "x"
+    } shouldEqual F.gt(strCol, Binary.fromString("abc" + "x"))
+  }
+
+  it should "support null literals" in {
+    Predicate[TR](_.getIntField == null) shouldEqual F.eq(intCol, null.asInstanceOf[JInt])
+    Predicate[TR](_.getLongField == null) shouldEqual F.eq(longCol, null.asInstanceOf[JLong])
+    Predicate[TR](_.getFloatField == null) shouldEqual F.eq(floatCol, null.asInstanceOf[JFloat])
+    Predicate[TR](_.getDoubleField == null) shouldEqual F.eq(doubleCol, null.asInstanceOf[JDouble])
+    Predicate[TR](_.getBooleanField == null) shouldEqual F.eq(boolCol, null.asInstanceOf[JBoolean])
+    Predicate[TR](_.getStringField == null) shouldEqual F.eq(strCol, null.asInstanceOf[Binary])
+  }
+
+  it should "support null boxed values" in {
+    val i: JInt = null
+    val l: JLong = null
+    val f: JFloat = null
+    val d: JDouble = null
+    Predicate[TR](_.getIntField == i) shouldEqual F.eq(intCol, null.asInstanceOf[JInt])
+    Predicate[TR](_.getLongField == l) shouldEqual F.eq(longCol, null.asInstanceOf[JLong])
+    Predicate[TR](_.getFloatField == f) shouldEqual F.eq(floatCol, null.asInstanceOf[JFloat])
+    Predicate[TR](_.getDoubleField  == d) shouldEqual F.eq(doubleCol, null.asInstanceOf[JDouble])
+  }
+
+  it should "support type coercion" in {
     val intP = F.gt(intCol, JInt.valueOf(10))
     Predicate[TR](_.getIntField > 10l) shouldEqual intP
     Predicate[TR](10l < _.getIntField) shouldEqual intP
@@ -50,82 +109,7 @@ class PredicateTest extends FlatSpec with Matchers {
     Predicate[TR](10.0f < _.getDoubleField) shouldEqual doubleP
   }
 
-  "Predicate" should "support all primitive types" in {
-    Predicate[TR](_.getIntField > 10) shouldEqual F.gt(intCol, JInt.valueOf(10))
-    Predicate[TR](_.getIntField > 10) shouldEqual F.gt(intCol, JInt.valueOf(10))
-    Predicate[TR](_.getLongField > 10l) shouldEqual F.gt(longCol, JLong.valueOf(10))
-    Predicate[TR](_.getFloatField > 10f) shouldEqual F.gt(floatCol, JFloat.valueOf(10))
-    Predicate[TR](_.getDoubleField > 10.0) shouldEqual F.gt(doubleCol, JDouble.valueOf(10))
-    Predicate[TR](_.getBooleanField == true) shouldEqual F.eq(boolCol, JBoolean.valueOf(true))
-
-    Predicate[TR](_.getStringField.toString > "abc") shouldEqual F.gt(strCol, Binary.fromString("abc"))
-  }
-
-  "Predicate" should "support all primitive values" in {
-    val intVal = 10
-    Predicate[TR](_.getIntField > intVal) shouldEqual F.gt(intCol, JInt.valueOf(10))
-    Predicate[TR](_.getIntField > intVal + 1) shouldEqual F.gt(intCol, JInt.valueOf(10 + 1))
-
-    val longVal = 10l
-    Predicate[TR](_.getLongField > longVal) shouldEqual F.gt(longCol, JLong.valueOf(10))
-    Predicate[TR](_.getLongField > longVal + 1) shouldEqual F.gt(longCol, JLong.valueOf(10 + 1))
-
-    val floatVal = 10f
-    Predicate[TR](_.getFloatField > floatVal) shouldEqual F.gt(floatCol, JFloat.valueOf(10))
-    Predicate[TR](_.getFloatField > floatVal + 1) shouldEqual F.gt(floatCol, JFloat.valueOf(10 + 1))
-
-    val doubleVal = 10.0
-    Predicate[TR](_.getDoubleField > doubleVal) shouldEqual F.gt(doubleCol, JDouble.valueOf(10))
-    Predicate[TR](_.getDoubleField > doubleVal + 1) shouldEqual F.gt(doubleCol, JDouble.valueOf(10 + 1))
-
-    val booleanVal = true
-    Predicate[TR](_.getBooleanField == booleanVal) shouldEqual F.eq(boolCol, JBoolean.valueOf(true))
-    Predicate[TR](_.getBooleanField == !booleanVal) shouldEqual F.eq(boolCol, JBoolean.valueOf(false))
-
-    val stringVal = "abc"
-    Predicate[TR](_.getStringField.toString > stringVal) shouldEqual F.gt(strCol, Binary.fromString("abc"))
-    Predicate[TR] {
-      _.getStringField.toString > stringVal + "x"
-    } shouldEqual F.gt(strCol, Binary.fromString("abc" + "x"))
-  }
-
-  "Predicate" should "support null values" in {
-    // null literals
-    Predicate[TR](_.getIntField == null) shouldEqual F.eq(intCol, null.asInstanceOf[JInt])
-    Predicate[TR](_.getLongField == null) shouldEqual F.eq(longCol, null.asInstanceOf[JLong])
-    Predicate[TR](_.getFloatField == null) shouldEqual F.eq(floatCol, null.asInstanceOf[JFloat])
-    Predicate[TR](_.getDoubleField  == null) shouldEqual F.eq(doubleCol, null.asInstanceOf[JDouble])
-    Predicate[TR](_.getBooleanField == null) shouldEqual F.eq(boolCol, null.asInstanceOf[JBoolean])
-    Predicate[TR](_.getStringField == null) shouldEqual F.eq(strCol, null.asInstanceOf[Binary])
-
-    // null boxed values
-    val i: JInt = null
-    val l: JLong = null
-    val f: JFloat = null
-    val d: JDouble = null
-    Predicate[TR](_.getIntField == i) shouldEqual F.eq(intCol, null.asInstanceOf[JInt])
-    Predicate[TR](_.getLongField == l) shouldEqual F.eq(longCol, null.asInstanceOf[JLong])
-    Predicate[TR](_.getFloatField == f) shouldEqual F.eq(floatCol, null.asInstanceOf[JFloat])
-    Predicate[TR](_.getDoubleField  == d) shouldEqual F.eq(doubleCol, null.asInstanceOf[JDouble])
-  }
-
-  "Predicate" should "support implicit boolean predicate" in {
-    val trueVal = JBoolean.valueOf(true)
-    val intGt = F.gt(intCol, JInt.valueOf(10))
-
-    Predicate[TR](_.getBooleanField) shouldEqual F.eq(boolCol, trueVal)
-    Predicate[TR](!_.getBooleanField) shouldEqual F.not(F.eq(boolCol, trueVal))
-
-    Predicate[TR] { r =>
-      r.getBooleanField && r.getIntField > 10
-    } shouldEqual F.and(F.eq(boolCol, trueVal), intGt)
-
-    Predicate[TR] { r =>
-      !r.getBooleanField && r.getIntField > 10
-    } shouldEqual F.and(F.not(F.eq(boolCol, trueVal)), intGt)
-  }
-
-  "Predicate" should "support all predicates" in {
+  it should "support all comparators" in {
     val int10 = JInt.valueOf(10)
 
     Predicate[TR](_.getIntField > 10) shouldEqual F.gt(intCol, int10)
@@ -136,7 +120,7 @@ class PredicateTest extends FlatSpec with Matchers {
     Predicate[TR](_.getIntField != 10) shouldEqual F.notEq(intCol, int10)
   }
 
-  "Predicate" should "support flipped operands" in {
+  it should "support flipped operands" in {
     val int10 = JInt.valueOf(10)
 
     Predicate[TR](10 < _.getIntField) shouldEqual F.gt(intCol, int10)
@@ -147,7 +131,7 @@ class PredicateTest extends FlatSpec with Matchers {
     Predicate[TR](10 != _.getIntField) shouldEqual F.notEq(intCol, int10)
   }
 
-  "Predicate" should "support logical not operator" in {
+  it should "support logical not operator" in {
     val int10 = JInt.valueOf(10)
 
     Predicate[TR](r => !(r.getIntField > 10)) shouldEqual F.not(F.gt(intCol, int10))
@@ -158,7 +142,7 @@ class PredicateTest extends FlatSpec with Matchers {
     Predicate[TR](r => !(r.getIntField != 10)) shouldEqual F.not(F.notEq(intCol, int10))
   }
 
-  "Predicate" should "support binary logical operators" in {
+  it should "support binary logical operators" in {
     val intGt = F.gt(intCol, JInt.valueOf(10))
     val longLt = F.lt(longCol, JLong.valueOf(20))
 
@@ -179,7 +163,23 @@ class PredicateTest extends FlatSpec with Matchers {
     } shouldEqual F.or(F.not(intGt), F.not(longLt))
   }
 
-  "Predicate" should "build Scala lambda" in {
+  it should "support implicit boolean predicate" in {
+    val trueVal = JBoolean.valueOf(true)
+    val intGt = F.gt(intCol, JInt.valueOf(10))
+
+    Predicate[TR](_.getBooleanField) shouldEqual F.eq(boolCol, trueVal)
+    Predicate[TR](!_.getBooleanField) shouldEqual F.not(F.eq(boolCol, trueVal))
+
+    Predicate[TR] { r =>
+      r.getBooleanField && r.getIntField > 10
+    } shouldEqual F.and(F.eq(boolCol, trueVal), intGt)
+
+    Predicate[TR] { r =>
+      !r.getBooleanField && r.getIntField > 10
+    } shouldEqual F.and(F.not(F.eq(boolCol, trueVal)), intGt)
+  }
+
+  "Predicate.build(p: T => Boolean)" should "build Scala lambda and FilterPredicate" in {
     val record = new TR(10, 20l, 30.0f, 40.0, true, "test")
 
     val t1 = Predicate.build[TR](r => r.getIntField > 0 && r.getLongField > 0l)

@@ -9,15 +9,15 @@ import scala.reflect.macros.Context
 
 object Projection {
 
-  def apply[T <: SR](getters: (T => Any)*): Schema = macro applyImpl[T]
+  def apply[T <: SR](g: (T => Any)*): Schema = macro applyImpl[T]
 
-  def applyImpl[T <: SR : c.WeakTypeTag](c: Context)(getters: c.Expr[(T => Any)]*): c.Expr[Schema] = {
+  def applyImpl[T <: SR : c.WeakTypeTag](c: Context)(g: c.Expr[(T => Any)]*): c.Expr[Schema] = {
     import c.universe._
 
     val schema = Class.forName(implicitly[WeakTypeTag[T]].tpe.typeSymbol.fullName)
       .getMethod("getClassSchema").invoke(null).asInstanceOf[Schema]
     val schemaString = schema.toString(false)
-    val columnPaths = getters.map(Common.treeToField(c)(schema, _)._1)
+    val columnPaths = g.map(Common.treeToField(c)(schema, _)._1)
 
     c.Expr[Schema](q"_root_.me.lyh.parquet.avro.Projection.project($schemaString, ..$columnPaths)")
   }

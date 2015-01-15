@@ -7,14 +7,14 @@ class ProjectionTest extends FlatSpec with Matchers {
 
   val schema = User.getClassSchema
 
-  "Projection" should "work on top-level field" in {
+  "Projection.apply(g: (T => Any)*)" should "work on top-level field" in {
     val s = Projection[User](_.getEmail, _.getAddress)
     s.getFields.size() shouldBe 2
     s.getField("email") shouldEqual schema.getField("email")
     s.getField("address") shouldEqual schema.getField("address")
   }
 
-  "Projection" should "work on nested field" in {
+  it should "work on nested field" in {
     val s1 = Projection[User](_.getAddress.getZip)
     s1.getFields.size() shouldBe 1
 
@@ -23,13 +23,13 @@ class ProjectionTest extends FlatSpec with Matchers {
     s2.getField("zip") shouldEqual schema.getField("address").schema().getField("zip")
   }
 
-  "Projection" should "work on array field" in {
+  it should "work on array field" in {
     val s = Projection[User](_.getAccounts)
     s.getFields.size() shouldBe 1
     s.getField("accounts") shouldEqual schema.getField("accounts")
   }
 
-  "Projection" should "work on nested array field" in {
+  it should "work on nested array field" in {
     val s1 = Projection[User](_.getAccounts.get(0).getAmount)
     s1.getFields.size() shouldBe 1
 
