@@ -130,8 +130,9 @@ object Predicate {
               mkPredicateFn(tq"java.lang.Boolean","booleanColumn", value)
 
             case Schema.Type.STRING =>
-              val value = if (isNullLiteral) q"null" else q"_root_.parquet.io.api.Binary.fromString($valueExpr)"
-              mkPredicateFn(tq"_root_.parquet.io.api.Binary","binaryColumn", value)
+              val ns = q"_root_.parquet.io.api"
+              val value = if (isNullLiteral) q"null" else q"$ns.Binary.fromString($valueExpr)"
+              mkPredicateFn(tq"$ns.Binary","binaryColumn", value)
 
             case _ => throw new RuntimeException("Unsupported value type: " + fieldType)
           }
