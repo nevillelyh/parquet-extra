@@ -6,7 +6,7 @@ import xerial.sbt.Sonatype.SonatypeKeys._
 object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Sonatype.sonatypeSettings ++ Seq (
     organization       := "me.lyh",
-    version            := "0.1.5",
+    version            := "0.1.6-SNAPSHOT",
 
     scalaVersion       := "2.10.4",
     crossScalaVersions := Seq("2.10.4", "2.11.4"),
