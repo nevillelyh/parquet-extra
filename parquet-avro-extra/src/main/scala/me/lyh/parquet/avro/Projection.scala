@@ -60,7 +60,10 @@ object Projection {
       copyField(schema, f)
     }
 
-    val projection = Schema.createRecord(schema.getName, schema.getDoc, schema.getNamespace, false)
+    // Avro gets confused when the same class is projected differently in multiple fields.
+    // Appending a random suffix circumvent this problem.
+    val r = new java.util.Random().nextInt(Int.MaxValue).toString
+    val projection = Schema.createRecord(schema.getName + r, schema.getDoc, schema.getNamespace, false)
     projection.setFields(pFields.asJava)
     projection
   }
