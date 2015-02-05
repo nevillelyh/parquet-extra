@@ -26,6 +26,8 @@ object Projection {
     createProjection(new Schema.Parser().parse(schema), fields.toSet)
   }
 
+  private val rand = new java.util.Random()
+
   private def createProjection(schema: Schema, fields: Set[String], parentFieldName: Option[String] = None): Schema = {
     schema.getType match {
       case Schema.Type.RECORD => createRecordProjection(schema, fields, parentFieldName)
@@ -62,7 +64,7 @@ object Projection {
 
     // Avro gets confused when the same class is projected differently in multiple fields.
     // Appending a random suffix circumvent this problem.
-    val r = new java.util.Random().nextInt(Int.MaxValue).toString
+    val r = rand.nextInt(Int.MaxValue).toString
     val projection = Schema.createRecord(schema.getName + r, schema.getDoc, schema.getNamespace, false)
     projection.setFields(pFields.asJava)
     projection
