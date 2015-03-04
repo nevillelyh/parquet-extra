@@ -48,8 +48,7 @@ object ParquetAvroExtraBuild extends Build {
       run <<= run in Compile in parquetAvroExamples)
   ).settings(
     publish         := {},
-    publishLocal    := {},
-    publishArtifact := false
+    publishLocal    := {}
   ).aggregate(
     parquetAvroExtra,
     parquetAvroExamples
@@ -86,8 +85,7 @@ object ParquetAvroExtraBuild extends Build {
     settings = buildSettings ++ sbtavro.SbtAvro.avroSettings
   ).settings(
     publish := {},
-    publishLocal := {},
-    publishArtifact := false
+    publishLocal := {}
   )
 
   lazy val parquetAvroExamples: Project = Project(
@@ -98,8 +96,7 @@ object ParquetAvroExtraBuild extends Build {
     )
   ).settings(
     publish         := {},
-    publishLocal    := {},
-    publishArtifact := false
+    publishLocal    := {}
   ).dependsOn(
     parquetAvroExtra,
     parquetAvroSchema
