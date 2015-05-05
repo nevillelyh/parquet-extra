@@ -8,10 +8,10 @@ object BuildSettings {
     organization       := "me.lyh",
     version            := "0.1.6-SNAPSHOT",
 
-    scalaVersion       := "2.10.4",
-    crossScalaVersions := Seq("2.10.4", "2.11.5"),
+    scalaVersion       := "2.10.5",
+    crossScalaVersions := Seq("2.10.5", "2.11.6"),
     scalacOptions      ++= Seq(),
-    javacOptions       ++= Seq("-source", "1.6", "-target", "1.6"),
+    javacOptions       ++= Seq("-source", "1.7", "-target", "1.7"),
 
     profileName        := "me.lyh",
     pomExtra           := {
@@ -72,8 +72,8 @@ object ParquetAvroExtraBuild extends Build {
           // in Scala 2.10, quasiquotes are provided by macro paradise
           case Some((2, 10)) =>
             libraryDependencies.value ++ Seq(
-              compilerPlugin("org.scalamacros" % "paradise" % "2.0.0" cross CrossVersion.full),
-              "org.scalamacros" %% "quasiquotes" % "2.0.0" cross CrossVersion.binary)
+              compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full),
+              "org.scalamacros" %% "quasiquotes" % "2.0.1" cross CrossVersion.binary)
         }
       }
     )
