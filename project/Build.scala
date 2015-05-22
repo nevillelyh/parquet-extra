@@ -62,7 +62,7 @@ object ParquetAvroExtraBuild extends Build {
       libraryDependencies ++= Seq(
         "org.apache.avro" % "avro" % "1.7.4",
         "org.apache.avro" % "avro-compiler" % "1.7.4",
-        "com.twitter" % "parquet-column" % "1.6.0rc4"
+        "org.apache.parquet" % "parquet-column" % "1.7.0"
       ),
       libraryDependencies := {
         CrossVersion.partialVersion(scalaVersion.value) match {

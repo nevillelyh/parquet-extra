@@ -1,8 +1,8 @@
 package me.lyh.parquet.avro
 
-import _root_.parquet.filter2.predicate.FilterPredicate
 import org.apache.avro.Schema
 import org.apache.avro.specific.{SpecificRecord => SR}
+import org.apache.parquet.filter2.predicate.FilterPredicate
 
 import scala.language.experimental.macros
 import scala.reflect.macros.Context
@@ -45,7 +45,7 @@ object Predicate {
   private def buildFilterPredicate[T <: SR : c.WeakTypeTag](c: Context)
                                              (p: c.Expr[T => Boolean]): c.Expr[FilterPredicate] = {
     import c.universe._
-    val ns = q"_root_.parquet.filter2.predicate"
+    val ns = q"_root_.org.apache.parquet.filter2.predicate"
     val nsApi = q"$ns.FilterApi"
     val nsOp = q"$ns.Operators"
 
@@ -130,7 +130,7 @@ object Predicate {
               mkPredicateFn(tq"java.lang.Boolean","booleanColumn", value)
 
             case Schema.Type.STRING =>
-              val ns = q"_root_.parquet.io.api"
+              val ns = q"_root_.org.apache.parquet.io.api"
               val value = if (isNullLiteral) q"null" else q"$ns.Binary.fromString($valueExpr)"
               mkPredicateFn(tq"$ns.Binary","binaryColumn", value)
 
