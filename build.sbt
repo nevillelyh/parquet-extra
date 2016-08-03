@@ -9,6 +9,10 @@ val commonSettings = Project.defaultSettings ++ Sonatype.sonatypeSettings ++ Seq
   scalacOptions      ++= Seq("-target:jvm-1.7", "-deprecation", "-feature", "-unchecked"),
   javacOptions       ++= Seq("-source", "1.7", "-target", "1.7"),
 
+  coverageExcludedPackages := Seq(
+    "me\\.lyh\\.parquet\\.avro\\.examples\\..*"
+  ).mkString(";"),
+
   // Release settings
   releaseCrossBuild             := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
