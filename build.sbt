@@ -4,7 +4,7 @@ import Keys._
 val commonSettings = Project.defaultSettings ++ Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
 
-  scalaVersion       := "2.10.6",
+  scalaVersion       := "2.11.8",
   crossScalaVersions := Seq("2.10.6", "2.11.8"),
   scalacOptions      ++= Seq("-target:jvm-1.7", "-deprecation", "-feature", "-unchecked"),
   javacOptions       ++= Seq("-source", "1.7", "-target", "1.7"),
