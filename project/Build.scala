@@ -8,8 +8,8 @@ object BuildSettings {
     organization       := "me.lyh",
     version            := "0.2.1-SNAPSHOT",
 
-    scalaVersion       := "2.10.5",
-    crossScalaVersions := Seq("2.10.5", "2.11.7"),
+    scalaVersion       := "2.10.6",
+    crossScalaVersions := Seq("2.10.6", "2.11.8"),
     scalacOptions      ++= Seq("-target:jvm-1.7", "-deprecation", "-feature", "-unchecked"),
     javacOptions       ++= Seq("-source", "1.7", "-target", "1.7"),
 
