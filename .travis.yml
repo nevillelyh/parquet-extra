@@ -11,10 +11,17 @@ cache:
     - $HOME/.ivy2/cache
 
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION clean test;
+  - if [[ "${TRAVIS_SCALA_VERSION%.*}" == "2.10" ]]; then
+      sbt ++$TRAVIS_SCALA_VERSION clean test;
+    else
+      sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport coverageAggregate;
+    fi
   # Tricks to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 notifications:
   email:
