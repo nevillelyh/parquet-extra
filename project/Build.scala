@@ -92,7 +92,7 @@ object ParquetAvroExtraBuild extends Build {
     "parquet-avro-examples",
     file("parquet-avro-examples"),
     settings = buildSettings ++ Seq(
-      libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
+      libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.6" % "test"
     )
   ).settings(
     publish         := {},
