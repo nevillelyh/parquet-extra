@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 
-val commonSettings = Project.defaultSettings ++ Sonatype.sonatypeSettings ++ Seq(
+val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
 
   scalaVersion       := "2.11.8",
@@ -12,6 +12,7 @@ val commonSettings = Project.defaultSettings ++ Sonatype.sonatypeSettings ++ Seq
   coverageExcludedPackages := Seq(
     "me\\.lyh\\.parquet\\.avro\\.examples\\..*"
   ).mkString(";"),
+  coverageHighlighting := (if (scalaBinaryVersion.value == "2.10") false else true),
 
   // Release settings
   releaseCrossBuild             := true,
@@ -44,10 +45,10 @@ val commonSettings = Project.defaultSettings ++ Sonatype.sonatypeSettings ++ Seq
 
 lazy val root: Project = Project(
   "root",
-  file("."),
-  settings = commonSettings ++ Seq(
-    run <<= run in Compile in parquetAvroExamples)
+  file(".")
 ).settings(
+  commonSettings,
+  run <<= run in Compile in parquetAvroExamples,
   publish         := {},
   publishLocal    := {}
 ).aggregate(
@@ -57,45 +58,45 @@ lazy val root: Project = Project(
 
 lazy val parquetAvroExtra: Project = Project(
   "parquet-avro-extra",
-  file("parquet-avro-extra"),
-  settings = commonSettings ++ Seq(
-    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
-    libraryDependencies ++= Seq(
-      "org.apache.avro" % "avro" % "1.7.4",
-      "org.apache.avro" % "avro-compiler" % "1.7.4",
-      "org.apache.parquet" % "parquet-column" % "1.8.1"
-    ),
-    libraryDependencies := {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        // if Scala 2.11+ is used, quasiquotes are available in the standard distribution
-        case Some((2, scalaMajor)) if scalaMajor >= 11 =>
-          libraryDependencies.value
-        // in Scala 2.10, quasiquotes are provided by macro paradise
-        case Some((2, 10)) =>
-          libraryDependencies.value ++ Seq(
-            compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full),
-            "org.scalamacros" %% "quasiquotes" % "2.0.1" cross CrossVersion.binary)
-      }
+  file("parquet-avro-extra")
+).settings(
+  commonSettings,
+  libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
+  libraryDependencies ++= Seq(
+    "org.apache.avro" % "avro" % "1.7.4",
+    "org.apache.avro" % "avro-compiler" % "1.7.4",
+    "org.apache.parquet" % "parquet-column" % "1.8.1"
+  ),
+  libraryDependencies := {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      // if Scala 2.11+ is used, quasiquotes are available in the standard distribution
+      case Some((2, scalaMajor)) if scalaMajor >= 11 =>
+        libraryDependencies.value
+      // in Scala 2.10, quasiquotes are provided by macro paradise
+      case Some((2, 10)) =>
+        libraryDependencies.value ++ Seq(
+          compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full),
+          "org.scalamacros" %% "quasiquotes" % "2.0.1" cross CrossVersion.binary)
     }
-  )
+  }
 )
 
 lazy val parquetAvroSchema: Project = Project(
   "parquet-avro-schema",
-  file("parquet-avro-schema"),
-  settings = commonSettings ++ sbtavro.SbtAvro.avroSettings
+  file("parquet-avro-schema")
 ).settings(
+  commonSettings,
+  sbtavro.SbtAvro.avroSettings,
   publish := {},
   publishLocal := {}
 )
 
 lazy val parquetAvroExamples: Project = Project(
   "parquet-avro-examples",
-  file("parquet-avro-examples"),
-  settings = commonSettings ++ Seq(
-    libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.6" % "test"
-  )
+  file("parquet-avro-examples")
 ).settings(
+  commonSettings,
+  libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.6" % "test",
   publish         := {},
   publishLocal    := {}
 ).dependsOn(
