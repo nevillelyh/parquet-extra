@@ -1,12 +1,14 @@
 import sbt._
 import Keys._
 
+def jdkVersion(scalaBinaryVersion: String) = if (scalaBinaryVersion == "2.12") "1.8" else "1.7"
+
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
 
-  scalaVersion       := "2.11.8",
-  crossScalaVersions := Seq("2.10.6", "2.11.8"),
-  scalacOptions      ++= Seq("-target:jvm-1.7", "-deprecation", "-feature", "-unchecked"),
+  scalaVersion       := "2.12.0",
+  crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.0"),
+  scalacOptions      ++= Seq("-target:jvm-" + jdkVersion(scalaBinaryVersion.value), "-deprecation", "-feature", "-unchecked"),
   javacOptions       ++= Seq("-source", "1.7", "-target", "1.7"),
 
   coverageExcludedPackages := Seq(
@@ -48,7 +50,7 @@ lazy val root: Project = Project(
   file(".")
 ).settings(
   commonSettings,
-  run <<= run in Compile in parquetAvroExamples,
+  run             := run in Compile in parquetAvroExamples,
   publish         := {},
   publishLocal    := {}
 ).aggregate(
@@ -61,7 +63,7 @@ lazy val parquetAvroExtra: Project = Project(
   file("parquet-avro-extra")
 ).settings(
   commonSettings,
-  libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
+  libraryDependencies += ("org.scala-lang" % "scala-reflect" % scalaVersion.value),
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % "1.7.4",
     "org.apache.avro" % "avro-compiler" % "1.7.4",
@@ -75,8 +77,8 @@ lazy val parquetAvroExtra: Project = Project(
       // in Scala 2.10, quasiquotes are provided by macro paradise
       case Some((2, 10)) =>
         libraryDependencies.value ++ Seq(
-          compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full),
-          "org.scalamacros" %% "quasiquotes" % "2.0.1" cross CrossVersion.binary)
+          compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
+          "org.scalamacros" %% "quasiquotes" % "2.1.0" cross CrossVersion.binary)
     }
   }
 )
@@ -96,7 +98,7 @@ lazy val parquetAvroExamples: Project = Project(
   file("parquet-avro-examples")
 ).settings(
   commonSettings,
-  libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.6" % "test",
+  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test",
   publish         := {},
   publishLocal    := {}
 ).dependsOn(
