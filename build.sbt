@@ -45,14 +45,18 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   }
 )
 
+val noPublishSettings = Seq(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false
+)
+
 lazy val root: Project = Project(
   "root",
   file(".")
 ).settings(
-  commonSettings,
-  run             := run in Compile in parquetAvroExamples,
-  publish         := {},
-  publishLocal    := {}
+  commonSettings ++ noPublishSettings,
+  run := run in Compile in parquetAvroExamples
 ).aggregate(
   parquetAvroExtra,
   parquetAvroExamples
@@ -87,20 +91,15 @@ lazy val parquetAvroSchema: Project = Project(
   "parquet-avro-schema",
   file("parquet-avro-schema")
 ).settings(
-  commonSettings,
-  sbtavro.SbtAvro.avroSettings,
-  publish := {},
-  publishLocal := {}
+  commonSettings ++ noPublishSettings ++ sbtavro.SbtAvro.avroSettings
 )
 
 lazy val parquetAvroExamples: Project = Project(
   "parquet-avro-examples",
   file("parquet-avro-examples")
 ).settings(
-  commonSettings,
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test",
-  publish         := {},
-  publishLocal    := {}
+  commonSettings ++ noPublishSettings,
+  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 ).dependsOn(
   parquetAvroExtra,
   parquetAvroSchema
