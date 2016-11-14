@@ -122,7 +122,7 @@ object Predicate {
               val cTypeName = tq"java.lang.${newTypeName(cType)}"
               val vFnName = newTermName(vFn)
               val nullCase = cq"_: NullPointerException => null"
-              val value = if (isNullLiteral) q"null" else q"(try { $valueExpr.$vFnName } catch { case $nullCase })"
+              val value = if (isNullLiteral) q"null" else q"(if ($valueExpr == null) null else try { $valueExpr.$vFnName } catch { case $nullCase })"
               mkPredicateFn(cTypeName, cFn, value)
 
             case Schema.Type.BOOLEAN =>
