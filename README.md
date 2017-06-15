@@ -6,7 +6,7 @@ parquet-avro-extra
 [![GitHub license](https://img.shields.io/github/license/nevillelyh/parquet-avro-extra.svg)](./LICENSE)
 [![Maven Central](https://img.shields.io/maven-central/v/me.lyh/parquet-avro-extra_2.12.svg)](https://maven-badges.herokuapp.com/maven-central/me.lyh/parquet-avro-extra_2.12)
 
-Scala macros for generating Parquet schema projections and filter predicates.
+Scala macros for generating Parquet column projections and filter predicates.
 
 ## License
 
