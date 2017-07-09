@@ -6,8 +6,8 @@ def jdkVersion(scalaBinaryVersion: String) = if (scalaBinaryVersion == "2.12") "
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
 
-  scalaVersion       := "2.12.1",
-  crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1"),
+  scalaVersion       := "2.12.2",
+  crossScalaVersions := Seq("2.10.6", "2.11.11", "2.12.2"),
   scalacOptions      ++= Seq("-target:jvm-" + jdkVersion(scalaBinaryVersion.value), "-deprecation", "-feature", "-unchecked"),
   javacOptions       ++= Seq("-source", "1.7", "-target", "1.7"),
 
@@ -71,7 +71,7 @@ lazy val parquetAvroExtra: Project = Project(
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % "1.7.4",
     "org.apache.avro" % "avro-compiler" % "1.7.4",
-    "org.apache.parquet" % "parquet-column" % "1.8.1"
+    "org.apache.parquet" % "parquet-column" % "1.9.0"
   ),
   libraryDependencies := {
     CrossVersion.partialVersion(scalaVersion.value) match {
@@ -99,7 +99,7 @@ lazy val parquetAvroExamples: Project = Project(
   file("parquet-avro-examples")
 ).settings(
   commonSettings ++ noPublishSettings,
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
+  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.3" % "test"
 ).dependsOn(
   parquetAvroExtra,
   parquetAvroSchema
