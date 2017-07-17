@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 
 def jdkVersion(scalaBinaryVersion: String) = if (scalaBinaryVersion == "2.12") "1.8" else "1.7"
+val avroVersion = "1.7.4"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
@@ -10,6 +11,8 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   crossScalaVersions := Seq("2.10.6", "2.11.11", "2.12.2"),
   scalacOptions      ++= Seq("-target:jvm-" + jdkVersion(scalaBinaryVersion.value), "-deprecation", "-feature", "-unchecked"),
   javacOptions       ++= Seq("-source", "1.7", "-target", "1.7"),
+
+  version in avroConfig := avroVersion,
 
   coverageExcludedPackages := Seq(
     "me\\.lyh\\.parquet\\.avro\\.examples\\..*"
@@ -69,8 +72,8 @@ lazy val parquetAvroExtra: Project = Project(
   commonSettings,
   libraryDependencies += ("org.scala-lang" % "scala-reflect" % scalaVersion.value),
   libraryDependencies ++= Seq(
-    "org.apache.avro" % "avro" % "1.7.4",
-    "org.apache.avro" % "avro-compiler" % "1.7.4",
+    "org.apache.avro" % "avro" % avroVersion,
+    "org.apache.avro" % "avro-compiler" % avroVersion,
     "org.apache.parquet" % "parquet-column" % "1.9.0"
   ),
   libraryDependencies := {
@@ -91,7 +94,7 @@ lazy val parquetAvroSchema: Project = Project(
   "parquet-avro-schema",
   file("parquet-avro-schema")
 ).settings(
-  commonSettings ++ noPublishSettings ++ sbtavro.SbtAvro.avroSettings
+  commonSettings ++ noPublishSettings
 )
 
 lazy val parquetAvroExamples: Project = Project(
