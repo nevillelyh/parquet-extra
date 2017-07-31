@@ -1,8 +1,12 @@
 import sbt._
 import Keys._
 
+val avroVersion = "1.8.2"
+val parquetVersion = "1.9.0"
+val scalatestVersion = "3.0.3"
+val paradiseVersion = "2.1.0"
+
 def jdkVersion(scalaBinaryVersion: String) = if (scalaBinaryVersion == "2.12") "1.8" else "1.7"
-val avroVersion = "1.7.4"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
@@ -12,7 +16,7 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   scalacOptions      ++= Seq("-target:jvm-" + jdkVersion(scalaBinaryVersion.value), "-deprecation", "-feature", "-unchecked"),
   javacOptions       ++= Seq("-source", "1.7", "-target", "1.7"),
 
-  version in avroConfig := avroVersion,
+  version in AvroConfig := avroVersion,
 
   coverageExcludedPackages := Seq(
     "me\\.lyh\\.parquet\\.avro\\.examples\\..*"
@@ -74,7 +78,7 @@ lazy val parquetAvroExtra: Project = Project(
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % avroVersion,
     "org.apache.avro" % "avro-compiler" % avroVersion,
-    "org.apache.parquet" % "parquet-column" % "1.9.0"
+    "org.apache.parquet" % "parquet-column" % parquetVersion
   ),
   libraryDependencies := {
     CrossVersion.partialVersion(scalaVersion.value) match {
@@ -84,8 +88,8 @@ lazy val parquetAvroExtra: Project = Project(
       // in Scala 2.10, quasiquotes are provided by macro paradise
       case Some((2, 10)) =>
         libraryDependencies.value ++ Seq(
-          compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
-          "org.scalamacros" %% "quasiquotes" % "2.1.0" cross CrossVersion.binary)
+          compilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full),
+          "org.scalamacros" %% "quasiquotes" % paradiseVersion cross CrossVersion.binary)
     }
   }
 )
@@ -102,7 +106,7 @@ lazy val parquetAvroExamples: Project = Project(
   file("parquet-avro-examples")
 ).settings(
   commonSettings ++ noPublishSettings,
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.3" % "test"
+  libraryDependencies += "org.scalatest" %% "scalatest" % scalatestVersion % "test"
 ).dependsOn(
   parquetAvroExtra,
   parquetAvroSchema
