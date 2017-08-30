@@ -4,24 +4,20 @@ import Keys._
 val avroVersion = "1.8.2"
 val parquetVersion = "1.9.0"
 val scalatestVersion = "3.0.3"
-val paradiseVersion = "2.1.0"
-
-def jdkVersion(scalaBinaryVersion: String) = if (scalaBinaryVersion == "2.12") "1.8" else "1.7"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
 
   scalaVersion       := "2.12.3",
-  crossScalaVersions := Seq("2.10.6", "2.11.11", "2.12.3"),
-  scalacOptions      ++= Seq("-target:jvm-" + jdkVersion(scalaBinaryVersion.value), "-deprecation", "-feature", "-unchecked"),
-  javacOptions       ++= Seq("-source", "1.7", "-target", "1.7"),
+  crossScalaVersions := Seq("2.11.11", "2.12.3"),
+  scalacOptions      ++= Seq("-target:jvm-1.8", "-deprecation", "-feature", "-unchecked"),
+  javacOptions       ++= Seq("-source", "1.8", "-target", "1.8"),
 
   version in AvroConfig := avroVersion,
 
   coverageExcludedPackages := Seq(
     "me\\.lyh\\.parquet\\.avro\\.examples\\..*"
   ).mkString(";"),
-  coverageHighlighting := (if (scalaBinaryVersion.value == "2.10") false else true),
 
   // Release settings
   releaseCrossBuild             := true,
@@ -79,19 +75,7 @@ lazy val parquetAvroExtra: Project = Project(
     "org.apache.avro" % "avro" % avroVersion,
     "org.apache.avro" % "avro-compiler" % avroVersion,
     "org.apache.parquet" % "parquet-column" % parquetVersion
-  ),
-  libraryDependencies := {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      // if Scala 2.11+ is used, quasiquotes are available in the standard distribution
-      case Some((2, scalaMajor)) if scalaMajor >= 11 =>
-        libraryDependencies.value
-      // in Scala 2.10, quasiquotes are provided by macro paradise
-      case Some((2, 10)) =>
-        libraryDependencies.value ++ Seq(
-          compilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full),
-          "org.scalamacros" %% "quasiquotes" % paradiseVersion cross CrossVersion.binary)
-    }
-  }
+  )
 )
 
 lazy val parquetAvroSchema: Project = Project(
