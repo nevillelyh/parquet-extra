@@ -5,13 +5,13 @@ import org.apache.avro.specific.{SpecificRecord => SR}
 
 import scala.collection.JavaConverters._
 import scala.language.experimental.macros
-import scala.reflect.macros.Context
+import scala.reflect.macros._
 
 object Projection {
 
   def apply[T <: SR](g: (T => Any)*): Schema = macro applyImpl[T]
 
-  def applyImpl[T <: SR : c.WeakTypeTag](c: Context)(g: c.Expr[(T => Any)]*): c.Expr[Schema] = {
+  def applyImpl[T <: SR : c.WeakTypeTag](c: blackbox.Context)(g: c.Expr[(T => Any)]*): c.Expr[Schema] = {
     import c.universe._
 
     val schema = Class.forName(implicitly[WeakTypeTag[T]].tpe.typeSymbol.fullName)
@@ -92,7 +92,7 @@ object Projection {
 
   //remember the original field position
   private class CustomField(schema: Schema, field: Schema.Field)
-    extends Schema.Field(field.name(), schema, field.doc(), field.defaultValue()) {
+    extends Schema.Field(field.name(), schema, field.doc(), field.defaultVal()) {
     val originalPos = field.pos()
     override def pos(): Int = originalPos
   }

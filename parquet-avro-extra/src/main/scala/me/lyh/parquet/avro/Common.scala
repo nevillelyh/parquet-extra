@@ -6,11 +6,11 @@ import org.apache.avro.specific.{SpecificRecord => SR}
 
 import scala.collection.JavaConverters._
 import scala.language.experimental.macros
-import scala.reflect.macros.Context
+import scala.reflect.macros._
 
 object Common {
 
-  def treeToField[T <: SR : c.WeakTypeTag](c: Context)
+  def treeToField[T <: SR : c.WeakTypeTag](c: blackbox.Context)
                                           (schema: Schema,
                                            getter: c.Expr[T => Any]): (String, Schema.Type) = {
     import c.universe._
@@ -57,5 +57,7 @@ object Common {
       case e: Exception => throw new IllegalArgumentException("Invalid getter expression: " + getter.tree + " " + e)
     }
   }
+
+  def isNull[@specialized (Boolean, Int, Long, Float, Double) T](x: T): Boolean = x == null
 
 }

@@ -5,7 +5,7 @@ import org.apache.avro.specific.{SpecificRecord => SR}
 import org.apache.parquet.filter2.predicate.FilterPredicate
 
 import scala.language.experimental.macros
-import scala.reflect.macros.Context
+import scala.reflect.macros._
 
 case class Predicates[T](native: T => Boolean, parquet: FilterPredicate)
 
@@ -13,12 +13,12 @@ object Predicate {
 
   def apply[T <: SR](p: T => Boolean): FilterPredicate = macro applyImpl[T]
 
-  def applyImpl[T <: SR : c.WeakTypeTag](c: Context)
+  def applyImpl[T <: SR : c.WeakTypeTag](c: blackbox.Context)
                                         (p: c.Expr[T => Boolean]): c.Expr[FilterPredicate] = buildFilterPredicate(c)(p)
 
   def build[T <: SR](p: T => Boolean): Predicates[T] = macro buildImpl[T]
 
-  def buildImpl[T <: SR : c.WeakTypeTag](c: Context)
+  def buildImpl[T <: SR : c.WeakTypeTag](c: blackbox.Context)
                                         (p: c.Expr[T => Boolean]): c.Expr[Predicates[T]] = {
     import c.universe._
     val f = buildFilterPredicate(c)(p)
@@ -42,7 +42,7 @@ object Predicate {
     Schema.Type.FLOAT  -> ("Float", "floatColumn", "toFloat"),
     Schema.Type.DOUBLE -> ("Double", "doubleColumn", "toDouble"))
 
-  private def buildFilterPredicate[T <: SR : c.WeakTypeTag](c: Context)
+  private def buildFilterPredicate[T <: SR : c.WeakTypeTag](c: blackbox.Context)
                                              (p: c.Expr[T => Boolean]): c.Expr[FilterPredicate] = {
     import c.universe._
     val ns = q"_root_.org.apache.parquet.filter2.predicate"
@@ -61,8 +61,8 @@ object Predicate {
       val ct = tq"$nsOp.Column[$columnType] with $supportsLtGt"
 
       (columnPath: String, operator: String) => {
-        val opFn = newTermName(operator)
-        val cFn = newTermName(columnFn)
+        val opFn = TermName(operator)
+        val cFn = TermName(columnFn)
         val colVal = q"$nsApi.$cFn($columnPath)"
         q"$nsApi.$opFn($colVal.asInstanceOf[$ct], $value.asInstanceOf[$vt])"
       }
@@ -85,7 +85,7 @@ object Predicate {
       val logicalOp = logicalOps.get(operator.toString)
       if (logicalOp.isDefined) {
         // expr1 AND|OR expr2
-        val (op, l, r) = (newTermName(logicalOp.get), parse(lExpr), parse(rExpr))
+        val (op, l, r) = (TermName(logicalOp.get), parse(lExpr), parse(rExpr))
         c.Expr(q"$ns.FilterApi.$op($l, $r)").asInstanceOf[c.Expr[FilterPredicate]]
       } else {
         // expr1 COMP expr2
@@ -119,10 +119,14 @@ object Predicate {
           val predicateFn = fieldType match {
             case t if numericTypes.contains(t) =>
               val (cType, cFn, vFn) = numericTypes(t)
-              val cTypeName = tq"java.lang.${newTypeName(cType)}"
-              val vFnName = newTermName(vFn)
+              val cTypeName = tq"java.lang.${TypeName(cType)}"
+              val vFnName = TermName(vFn)
               val nullCase = cq"_: NullPointerException => null"
-              val value = if (isNullLiteral) q"null" else q"(if ($valueExpr == null) null else try { $valueExpr.$vFnName } catch { case $nullCase })"
+              val value = if (isNullLiteral) {
+                q"null"
+              } else {
+                q"(if (_root_.me.lyh.parquet.avro.Common.isNull($valueExpr)) null else try { $valueExpr.$vFnName } catch { case $nullCase })"
+              }
               mkPredicateFn(cTypeName, cFn, value)
 
             case Schema.Type.BOOLEAN =>
