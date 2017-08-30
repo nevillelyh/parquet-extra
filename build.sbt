@@ -20,6 +20,7 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   ).mkString(";"),
 
   // Release settings
+  publishTo := Some(if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging),
   releaseCrossBuild             := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   publishMavenStyle             := true,
