@@ -2,14 +2,14 @@ import sbt._
 import Keys._
 
 val avroVersion = "1.8.2"
-val parquetVersion = "1.9.0"
-val scalatestVersion = "3.0.3"
+val parquetVersion = "1.10.0"
+val scalatestVersion = "3.0.5"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
 
-  scalaVersion       := "2.12.3",
-  crossScalaVersions := Seq("2.11.11", "2.12.3"),
+  scalaVersion       := "2.12.7",
+  crossScalaVersions := Seq("2.11.12", "2.12.7"),
   scalacOptions      ++= Seq("-target:jvm-1.8", "-deprecation", "-feature", "-unchecked"),
   javacOptions       ++= Seq("-source", "1.8", "-target", "1.8"),
 
