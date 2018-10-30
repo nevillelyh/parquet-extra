@@ -50,7 +50,8 @@ lazy val root: Project = Project(
   run := run in Compile in parquetAvroExamples
 ).aggregate(
   parquetAvroExtra,
-  parquetAvroExamples
+  parquetAvroExamples,
+  parquetAvroIo
 )
 
 lazy val parquetAvroExtra: Project = Project(
@@ -82,4 +83,15 @@ lazy val parquetAvroExamples: Project = Project(
 ).dependsOn(
   parquetAvroExtra,
   parquetAvroSchema
+)
+
+lazy val parquetAvroIo: Project = Project(
+  "parquet-avro-io",
+  file("parquet-avro-io")
+).settings(
+  commonSettings,
+  libraryDependencies ++= Seq(
+    "org.apache.avro" % "avro" % avroVersion,
+    "org.apache.parquet" % "parquet-avro" % parquetVersion
+  )
 )
