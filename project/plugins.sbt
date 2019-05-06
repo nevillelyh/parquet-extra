@@ -1,4 +1,4 @@
-addSbtPlugin("com.cavorite" % "sbt-avro-1-8" % "1.1.5")
+addSbtPlugin("com.cavorite" % "sbt-avro-1-8" % "1.1.6")
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.11")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.2-1")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
