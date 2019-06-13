@@ -3,7 +3,7 @@ import Keys._
 
 val avroVersion = "1.8.2"
 val parquetVersion = "1.10.1"
-val scalatestVersion = "3.0.7"
+val scalatestVersion = "3.0.8"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
