@@ -43,7 +43,7 @@ val noPublishSettings = Seq(
 )
 
 lazy val root: Project = Project(
-  "root",
+  "parquet-avro-extra-parent",
   file(".")
 ).settings(
   commonSettings ++ noPublishSettings,
