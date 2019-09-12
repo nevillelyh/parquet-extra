@@ -8,8 +8,8 @@ val scalatestVersion = "3.0.8"
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
 
-  scalaVersion       := "2.12.8",
-  crossScalaVersions := Seq("2.11.12", "2.12.8"),
+  scalaVersion       := "2.13.0",
+  crossScalaVersions := Seq("2.11.12", "2.12.10", "2.13.0"),
   scalacOptions      ++= Seq("-target:jvm-1.8", "-deprecation", "-feature", "-unchecked"),
   javacOptions       ++= Seq("-source", "1.8", "-target", "1.8"),
 
@@ -78,7 +78,7 @@ lazy val parquetAvroExamples: Project = Project(
   file("parquet-avro-examples")
 ).settings(
   commonSettings ++ noPublishSettings,
-  libraryDependencies += "org.scalatest" %% "scalatest" % scalatestVersion % "test"
+  libraryDependencies += "org.scalatest" %% "scalatest" % scalatestVersion % Test
 ).dependsOn(
   parquetAvroExtra,
   parquetAvroSchema
