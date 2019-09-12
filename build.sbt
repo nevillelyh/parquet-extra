@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 
-val avroVersion = "1.9.1"
+val avroVersion = "1.8.2"
 val parquetVersion = "1.10.1"
 val scalatestVersion = "3.0.8"
 
