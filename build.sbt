@@ -6,6 +6,7 @@ val hadoopVersion = "3.2.1"
 val magnoliaVersion = "0.12.0"
 val parquetVersion = "1.10.1"
 val scalatestVersion = "3.0.8"
+val tensorFlowVersion = "1.15.0"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization       := "me.lyh",
@@ -55,6 +56,7 @@ lazy val root: Project = Project(
   run := run in Compile in parquetExamples
 ).aggregate(
   parquetAvro,
+  parquetTensorFlow,
   parquetTypes,
   parquetExamples
 )
@@ -73,6 +75,23 @@ lazy val parquetAvro: Project = Project(
   )
 ).dependsOn(
   parquetSchema % Test
+)
+
+lazy val parquetTensorFlow: Project = Project(
+  "parquet-tensorflow",
+  file("parquet-tensorflow")
+).settings(
+  commonSettings,
+  crossPaths := false,
+  autoScalaLibrary := false,
+  publishArtifact := scalaBinaryVersion.value == "2.12",
+  libraryDependencies ++= Seq(
+    "org.apache.parquet" % "parquet-column" % parquetVersion,
+    "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
+    "org.tensorflow" % "proto" % tensorFlowVersion,
+    "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided,
+    "org.scalatest" %% "scalatest" % scalatestVersion % Test
+  )
 )
 
 lazy val parquetTypes: Project = Project(
@@ -113,6 +132,7 @@ lazy val parquetExamples: Project = Project(
   ).mkString(";")
 ).dependsOn(
   parquetAvro,
+  parquetTensorFlow,
   parquetTypes,
   parquetSchema
 )
