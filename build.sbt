@@ -13,8 +13,16 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   scalaVersion       := "2.13.1",
   crossScalaVersions := Seq("2.11.12", "2.12.10", "2.13.1"),
   scalacOptions      ++= Seq("-target:jvm-1.8", "-deprecation", "-feature", "-unchecked"),
+  scalacOptions      ++= (scalaBinaryVersion.value match {
+    case "2.11" => Seq("-language:higherKinds")
+    case "2.12" => Seq("-language:higherKinds")
+    case "2.13" =>
+      // https://github.com/scala/bug/issues/11753
+      // FIXME: remove once Travis is on 2.13.1
+      if (scalaVersion.value == "2.13.0") Seq("-language:higherKinds") else Nil
+  }),
   javacOptions       ++= Seq("-source", "1.8", "-target", "1.8"),
-
+  javacOptions in (Compile, doc) := Seq("-source", "1.8"),
 
   // Release settings
   publishTo := Some(if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging),
