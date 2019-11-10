@@ -145,20 +145,20 @@ object ParquetType {
       }
     }
 
-  implicit def repeatedType[V, S[V]](implicit t: Typeclass[V],
-                                     ts: S[V] => Seq[V],
-                                     fc: FactoryCompat[V, S[V]]): Typeclass[S[V]] =
-    new Typeclass[S[V]] {
+  implicit def repeatedType[V, C[V]](implicit t: Typeclass[V],
+                                     ti: C[V] => Iterable[V],
+                                     fc: FactoryCompat[V, C[V]]): Typeclass[C[V]] =
+    new Typeclass[C[V]] {
       override def schema: Type = Schema.setRepetition(t.schema, Repetition.REPEATED)
-      override protected def isEmpty(v: S[V]): Boolean = v.isEmpty
+      override protected def isEmpty(v: C[V]): Boolean = v.isEmpty
 
-      override private[types] def write(c: RecordConsumer, v: S[V]): Unit =
+      override private[types] def write(c: RecordConsumer, v: C[V]): Unit =
         v.foreach(t.writeGroup(c, _))
 
-      override private[types] def newConverter: TypeConverter[S[V]] = {
+      override private[types] def newConverter: TypeConverter[C[V]] = {
         val buffered = t.newConverter.asInstanceOf[TypeConverter.Buffered[V]]
-        new TypeConverter.Delegate[V, S[V]](buffered) {
-          override def get: S[V] = {
+        new TypeConverter.Delegate[V, C[V]](buffered) {
+          override def get: C[V] = {
             val v = fc.build(inner.buffer)
             inner.buffer.clear()
             v

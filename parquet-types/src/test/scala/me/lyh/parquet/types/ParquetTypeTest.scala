@@ -96,6 +96,20 @@ class ParquetTypeTest extends FlatSpec with Matchers {
     roundTrip(xs) shouldEqual xs
   }
 
+  it should "support collections" in {
+    val xs = (0 until 10).map(i => Collections(
+      Array.fill(i)(i),
+      Iterable.fill(i)(i),
+      Seq.fill(i)(i),
+      IndexedSeq.fill(i)(i),
+      List.fill(i)(i),
+      Vector.fill(i)(i)
+    ))
+    val copy = roundTrip(xs)
+    copy.map(_.copy(a = null)) shouldEqual xs.map(_.copy(a = null))
+    copy.map(_.a.toList) shouldEqual xs.map(_.a.toList)
+  }
+
   it should "round trip nested" in {
     val xs = (0 until 10).map { i =>
       val i1 = Inner(i, optInt(i), List.fill(i)(i))
@@ -178,6 +192,8 @@ class ParquetTypeTest extends FlatSpec with Matchers {
 case class Primitives(b: Boolean, i: Int, l: Long, f: Float, d: Double, s: String)
 case class NonEqs(ba: Array[Byte], cs: CharSequence)
 case class Repetition(o: Option[Int], l: List[Int])
+case class Collections(a: Array[Int], i: Iterable[Int], s: Seq[Int], is: IndexedSeq[Int],
+                       l: List[Int], v: Vector[Int])
 
 case class Inner(r: Int, o: Option[Int], l: List[Int])
 case class Outer(r: Inner, o: Option[Inner], l: List[Inner])
