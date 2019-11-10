@@ -44,8 +44,8 @@ class ParquetTypeTest extends FlatSpec with Matchers {
   }
 
   private def testException(fun: => Any, msgs: String*) = {
-    val e = the [ParquetDecodingException] thrownBy fun
-    msgs.foreach(m => e.getCause.getMessage should include (m))
+    val e = the[ParquetDecodingException] thrownBy fun
+    msgs.foreach(m => e.getCause.getMessage should include(m))
   }
 
   private def optInt(i: Int) = if (i % 2 == 0) Some(i) else None
@@ -97,14 +97,17 @@ class ParquetTypeTest extends FlatSpec with Matchers {
   }
 
   it should "support collections" in {
-    val xs = (0 until 10).map(i => Collections(
-      Array.fill(i)(i),
-      Iterable.fill(i)(i),
-      Seq.fill(i)(i),
-      IndexedSeq.fill(i)(i),
-      List.fill(i)(i),
-      Vector.fill(i)(i)
-    ))
+    val xs = (0 until 10).map(
+      i =>
+        Collections(
+          Array.fill(i)(i),
+          Iterable.fill(i)(i),
+          Seq.fill(i)(i),
+          IndexedSeq.fill(i)(i),
+          List.fill(i)(i),
+          Vector.fill(i)(i)
+        )
+    )
     val copy = roundTrip(xs)
     copy.map(_.copy(a = null)) shouldEqual xs.map(_.copy(a = null))
     copy.map(_.a.toList) shouldEqual xs.map(_.a.toList)
@@ -160,40 +163,56 @@ class ParquetTypeTest extends FlatSpec with Matchers {
     write(temp, xs)
 
     // narrowing repetition
-    testException(read[R1](temp),
+    testException(
+      read[R1](temp),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: required int32 o (INT_32) != optional int32 o (INT_32)")
-    testException(read[R2](temp),
+      "incompatible types: required int32 o (INT_32) != optional int32 o (INT_32)"
+    )
+    testException(
+      read[R2](temp),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: optional int32 l (INT_32) != repeated int32 l (INT_32)")
+      "incompatible types: optional int32 l (INT_32) != repeated int32 l (INT_32)"
+    )
 
     // widening repetition
     read[R3](temp) shouldEqual xs.map(x => R3(Some(x.r)))
     read[R4](temp) shouldEqual xs.map(x => R4(x.o.toList))
 
     // new fields
-    testException(read[R5](temp),
+    testException(
+      read[R5](temp),
       "Failed to decode me.lyh.parquet.types.R5#x:",
-      "requirement failed: Required field size != 1: 0")
+      "requirement failed: Required field size != 1: 0"
+    )
     read[R6](temp) shouldEqual xs.map(x => R6(x.r, None))
     read[R7](temp) shouldEqual xs.map(x => R7(x.r, Nil))
 
     // incompatible fields
-    testException(read[R8](temp),
+    testException(
+      read[R8](temp),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: required binary r (UTF8) != required int32 r (INT_32)")
+      "incompatible types: required binary r (UTF8) != required int32 r (INT_32)"
+    )
     val schema = Schema.rename(ParquetType[Inner].schema, "r")
-    testException(read[R9](temp),
+    testException(
+      read[R9](temp),
       "The requested schema is not compatible with the file schema.",
-      s"incompatible types: $schema != required int32 r (INT_32)")
+      s"incompatible types: $schema != required int32 r (INT_32)"
+    )
   }
 }
 
 case class Primitives(b: Boolean, i: Int, l: Long, f: Float, d: Double, s: String)
 case class NonEqs(ba: Array[Byte], cs: CharSequence)
 case class Repetition(o: Option[Int], l: List[Int])
-case class Collections(a: Array[Int], i: Iterable[Int], s: Seq[Int], is: IndexedSeq[Int],
-                       l: List[Int], v: Vector[Int])
+case class Collections(
+  a: Array[Int],
+  i: Iterable[Int],
+  s: Seq[Int],
+  is: IndexedSeq[Int],
+  l: List[Int],
+  v: Vector[Int]
+)
 
 case class Inner(r: Int, o: Option[Int], l: List[Int])
 case class Outer(r: Inner, o: Option[Inner], l: List[Inner])

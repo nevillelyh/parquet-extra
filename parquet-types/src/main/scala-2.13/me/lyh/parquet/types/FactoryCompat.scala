@@ -1,6 +1,6 @@
 package me.lyh.parquet.types
 
-import scala.collection.{Factory, mutable}
+import scala.collection.{mutable, Factory}
 
 trait FactoryCompat[-A, +C] extends Serializable {
   def newBuilder: mutable.Builder[A, C]

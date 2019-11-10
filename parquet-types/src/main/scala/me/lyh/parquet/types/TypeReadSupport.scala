@@ -22,10 +22,12 @@ class TypeReadSupport[T] extends ReadSupport[T] {
     new ReadSupport.ReadContext(requestedSchema, java.util.Collections.emptyMap())
   }
 
-  override def prepareForRead(configuration: Configuration,
-                              keyValueMetaData: java.util.Map[String, String],
-                              fileSchema: MessageType,
-                              readContext: ReadSupport.ReadContext): RecordMaterializer[T] = {
+  override def prepareForRead(
+    configuration: Configuration,
+    keyValueMetaData: java.util.Map[String, String],
+    fileSchema: MessageType,
+    readContext: ReadSupport.ReadContext
+  ): RecordMaterializer[T] = {
     parquetType.schema
     new RecordMaterializer[T] {
       private val root = parquetType.newConverter
@@ -59,7 +61,6 @@ object TypeParquetReader {
     override protected def getReadSupport: ReadSupport[T] = readSupport
   }
 }
-
 
 class TypeParquetInputFormat[T] extends ParquetInputFormat[T](classOf[TypeReadSupport[T]])
 

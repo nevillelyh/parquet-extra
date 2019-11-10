@@ -14,8 +14,8 @@ class TypeWriteSupport[T] extends WriteSupport[T] {
 
   override def init(configuration: Configuration): WriteSupport.WriteContext = {
     if (parquetType == null) {
-      parquetType = SerializationUtils.fromBase64(
-        configuration.get(TypeParquetOutputFormat.ParquetTypeKey))
+      parquetType =
+        SerializationUtils.fromBase64(configuration.get(TypeParquetOutputFormat.ParquetTypeKey))
     }
     val schema = Schema.message(parquetType.schema)
     new WriteSupport.WriteContext(schema, java.util.Collections.emptyMap())

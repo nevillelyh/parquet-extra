@@ -33,9 +33,11 @@ object ParquetType {
 
   def combine[T](caseClass: CaseClass[Typeclass, T]): Typeclass[T] = new Typeclass[T] {
     override def schema: Type =
-      caseClass.parameters.foldLeft(Types.requiredGroup()) { (g, p) =>
-        g.addField(Schema.rename(p.typeclass.schema, p.label))
-      }.named(caseClass.typeName.full)
+      caseClass.parameters
+        .foldLeft(Types.requiredGroup()) { (g, p) =>
+          g.addField(Schema.rename(p.typeclass.schema, p.label))
+        }
+        .named(caseClass.typeName.full)
 
     override protected val isGroup: Boolean = true
     override protected def isEmpty(v: T): Boolean = false
@@ -145,9 +147,11 @@ object ParquetType {
       }
     }
 
-  implicit def repeatedType[V, C[V]](implicit t: Typeclass[V],
-                                     ti: C[V] => Iterable[V],
-                                     fc: FactoryCompat[V, C[V]]): Typeclass[C[V]] =
+  implicit def repeatedType[V, C[V]](
+    implicit t: Typeclass[V],
+    ti: C[V] => Iterable[V],
+    fc: FactoryCompat[V, C[V]]
+  ): Typeclass[C[V]] =
     new Typeclass[C[V]] {
       override def schema: Type = Schema.setRepetition(t.schema, Repetition.REPEATED)
       override protected def isEmpty(v: C[V]): Boolean = v.isEmpty

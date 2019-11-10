@@ -9,11 +9,15 @@ import scala.collection.JavaConverters._
 private object Schema {
   def rename(schema: Type, name: String): Type = {
     if (schema.isPrimitive) {
-      Types.primitive(schema.asPrimitiveType().getPrimitiveTypeName, schema.getRepetition)
+      Types
+        .primitive(schema.asPrimitiveType().getPrimitiveTypeName, schema.getRepetition)
         .as(schema.getOriginalType)
         .named(name)
     } else {
-      schema.asGroupType().getFields.asScala
+      schema
+        .asGroupType()
+        .getFields
+        .asScala
         .foldLeft(Types.buildGroup(schema.getRepetition))(_.addField(_))
         .named(name)
     }
@@ -22,11 +26,15 @@ private object Schema {
   def setRepetition(schema: Type, repetition: Repetition): Type = {
     require(schema.isRepetition(Repetition.REQUIRED))
     if (schema.isPrimitive) {
-      Types.primitive(schema.asPrimitiveType().getPrimitiveTypeName, repetition)
+      Types
+        .primitive(schema.asPrimitiveType().getPrimitiveTypeName, repetition)
         .as(schema.getOriginalType)
         .named(schema.getName)
     } else {
-      schema.asGroupType().getFields.asScala
+      schema
+        .asGroupType()
+        .getFields
+        .asScala
         .foldLeft(Types.buildGroup(repetition))(_.addField(_))
         .named(schema.getName)
     }

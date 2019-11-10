@@ -45,43 +45,61 @@ class ParquetExampleTest extends FlatSpec with Matchers {
     read(temp, schema)
   }
 
-  private def longs(xs: Long*) = Feature.newBuilder().setInt64List(
-    xs.foldLeft(Int64List.newBuilder())(_.addValue(_))
-  ).build()
+  private def longs(xs: Long*) =
+    Feature
+      .newBuilder()
+      .setInt64List(
+        xs.foldLeft(Int64List.newBuilder())(_.addValue(_))
+      )
+      .build()
 
-  private def floats(xs: Float*) = Feature.newBuilder().setFloatList(
-    xs.foldLeft(FloatList.newBuilder())(_.addValue(_))
-  ).build()
+  private def floats(xs: Float*) =
+    Feature
+      .newBuilder()
+      .setFloatList(
+        xs.foldLeft(FloatList.newBuilder())(_.addValue(_))
+      )
+      .build()
 
-  private def bytes(xs: ByteString*) = Feature.newBuilder().setBytesList(
-    xs.foldLeft(BytesList.newBuilder())(_.addValue(_))
-  ).build()
+  private def bytes(xs: ByteString*) =
+    Feature
+      .newBuilder()
+      .setBytesList(
+        xs.foldLeft(BytesList.newBuilder())(_.addValue(_))
+      )
+      .build()
 
-  private def getFeatures(keys: String*): Example => Seq[(String, Option[Feature])] = (e: Example) => {
-    keys.map(k => (k, Option(e.getFeatures.getFeatureOrDefault(k, null))))
-  }
+  private def getFeatures(keys: String*): Example => Seq[(String, Option[Feature])] =
+    (e: Example) => {
+      keys.map(k => (k, Option(e.getFeatures.getFeatureOrDefault(k, null))))
+    }
 
   private def testException(fun: => Any, msgs: String*) = {
-    val e = the [ParquetDecodingException] thrownBy fun
-    msgs.foreach(m => e.getCause.getMessage should include (m))
+    val e = the[ParquetDecodingException] thrownBy fun
+    msgs.foreach(m => e.getCause.getMessage should include(m))
   }
 
   "ParquetExample" should "work with Hadoop" in {
     val temp = makeTemp
-    val schema = Schema.newBuilder()
+    val schema = Schema
+      .newBuilder()
       .required("long", Schema.Type.INT64)
       .required("float", Schema.Type.FLOAT)
       .required("bytes", Schema.Type.BYTES)
       .named("Schema")
     val xs = (0 until 10).map { i =>
-      Example.newBuilder().setFeatures(Features.newBuilder()
-        .putFeature("long", longs(i))
-        .putFeature("float", floats(i))
-        .putFeature("bytes", bytes(ByteString.copyFromUtf8(i.toString)))
-      ).build()
+      Example
+        .newBuilder()
+        .setFeatures(
+          Features
+            .newBuilder()
+            .putFeature("long", longs(i))
+            .putFeature("float", floats(i))
+            .putFeature("bytes", bytes(ByteString.copyFromUtf8(i.toString)))
+        )
+        .build()
     }
     val job = Job.getInstance()
-
 
     job.setOutputFormatClass(classOf[ExampleParquetOutputFormat])
     ExampleParquetOutputFormat.setSchema(job, schema)
@@ -107,23 +125,30 @@ class ParquetExampleTest extends FlatSpec with Matchers {
   }
 
   it should "round trip primitives" in {
-    val schema = Schema.newBuilder()
+    val schema = Schema
+      .newBuilder()
       .required("long", Schema.Type.INT64)
       .required("float", Schema.Type.FLOAT)
       .required("bytes", Schema.Type.BYTES)
       .named("Schema")
     val xs = (0 until 10).map { i =>
-      Example.newBuilder().setFeatures(Features.newBuilder()
-        .putFeature("long", longs(i))
-        .putFeature("float", floats(i))
-        .putFeature("bytes", bytes(ByteString.copyFromUtf8(i.toString)))
-      ).build()
+      Example
+        .newBuilder()
+        .setFeatures(
+          Features
+            .newBuilder()
+            .putFeature("long", longs(i))
+            .putFeature("float", floats(i))
+            .putFeature("bytes", bytes(ByteString.copyFromUtf8(i.toString)))
+        )
+        .build()
     }
     roundTrip(schema, xs) shouldEqual xs
   }
 
   it should "round trip repetition" in {
-    val schema = Schema.newBuilder()
+    val schema = Schema
+      .newBuilder()
       .optional("o", Schema.Type.INT64)
       .repeated("l", Schema.Type.INT64)
       .named("Schema")
@@ -137,35 +162,44 @@ class ParquetExampleTest extends FlatSpec with Matchers {
   }
 
   it should "round trip primitives projection" in {
-    val schema = Schema.newBuilder()
+    val schema = Schema
+      .newBuilder()
       .required("long", Schema.Type.INT64)
       .required("float", Schema.Type.FLOAT)
       .required("bytes", Schema.Type.BYTES)
       .named("Schema")
     val xs = (0 until 10).map { i =>
-      Example.newBuilder().setFeatures(Features.newBuilder()
-        .putFeature("long", longs(i))
-        .putFeature("float", floats(i))
-        .putFeature("bytes", bytes(ByteString.copyFromUtf8(i.toString)))
-      ).build()
+      Example
+        .newBuilder()
+        .setFeatures(
+          Features
+            .newBuilder()
+            .putFeature("long", longs(i))
+            .putFeature("float", floats(i))
+            .putFeature("bytes", bytes(ByteString.copyFromUtf8(i.toString)))
+        )
+        .build()
     }
     val temp = makeTemp
     write(temp, schema, xs)
 
-    val reader1 = Schema.newBuilder()
+    val reader1 = Schema
+      .newBuilder()
       .required("bytes", Schema.Type.BYTES)
       .required("float", Schema.Type.FLOAT)
       .required("long", Schema.Type.INT64)
       .named("Reader1")
     read(temp, reader1) shouldEqual xs
 
-    val reader2 = Schema.newBuilder()
+    val reader2 = Schema
+      .newBuilder()
       .required("long", Schema.Type.INT64)
       .named("Reader2")
     val f = getFeatures("long")
     read(temp, reader2).map(f) shouldEqual xs.map(f)
 
-    val reader3 = Schema.newBuilder()
+    val reader3 = Schema
+      .newBuilder()
       .required("float", Schema.Type.FLOAT)
       .named("Reader3")
     val g = getFeatures("float")
@@ -173,7 +207,8 @@ class ParquetExampleTest extends FlatSpec with Matchers {
   }
 
   it should "round trip repetition projection" in {
-    val schema = Schema.newBuilder()
+    val schema = Schema
+      .newBuilder()
       .optional("o", Schema.Type.INT64)
       .repeated("l", Schema.Type.INT64)
       .named("Schema")
@@ -186,19 +221,22 @@ class ParquetExampleTest extends FlatSpec with Matchers {
     val temp = makeTemp
     write(temp, schema, xs)
 
-    val reader1 = Schema.newBuilder()
+    val reader1 = Schema
+      .newBuilder()
       .repeated("l", Schema.Type.INT64)
       .optional("o", Schema.Type.INT64)
       .named("Reader1")
     read(temp, reader1) shouldEqual xs
 
-    val reader2 = Schema.newBuilder()
+    val reader2 = Schema
+      .newBuilder()
       .repeated("l", Schema.Type.INT64)
       .named("Reader2")
     val f = getFeatures("l")
     read(temp, reader2).map(f) shouldEqual xs.map(f)
 
-    val reader3 = Schema.newBuilder()
+    val reader3 = Schema
+      .newBuilder()
       .optional("o", Schema.Type.INT64)
       .named("Reader3")
     val g = getFeatures("o")
@@ -206,7 +244,8 @@ class ParquetExampleTest extends FlatSpec with Matchers {
   }
 
   it should "support schema evolution" in {
-    val schema = Schema.newBuilder()
+    val schema = Schema
+      .newBuilder()
       .required("r", Schema.Type.INT64)
       .optional("o", Schema.Type.INT64)
       .repeated("l", Schema.Type.INT64)
@@ -222,13 +261,17 @@ class ParquetExampleTest extends FlatSpec with Matchers {
 
     // narrowing repetition
     val r1 = Schema.newBuilder().required("o", Schema.Type.INT64).named("R1")
-    testException(read(temp, r1),
+    testException(
+      read(temp, r1),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: required int64 o (INT_64) != optional int64 o (INT_64)")
+      "incompatible types: required int64 o (INT_64) != optional int64 o (INT_64)"
+    )
     val r2 = Schema.newBuilder().optional("l", Schema.Type.INT64).named("R2")
-    testException(read(temp, r2),
+    testException(
+      read(temp, r2),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: optional int64 l (INT_64) != repeated int64 l (INT_64)")
+      "incompatible types: optional int64 l (INT_64) != repeated int64 l (INT_64)"
+    )
 
     val getR = getFeatures("r")
     val getO = getFeatures("o")
@@ -240,27 +283,31 @@ class ParquetExampleTest extends FlatSpec with Matchers {
     read(temp, r4).map(getO) shouldEqual xs.map(getO)
 
     // new fields
-    val r5 = Schema.newBuilder()
+    val r5 = Schema
+      .newBuilder()
       .required("r", Schema.Type.INT64)
       .required("x", Schema.Type.INT64)
       .named("R5")
-    testException(read(temp, r5),
-      "Failed to decode R5#x: Required field size != 1: 0")
+    testException(read(temp, r5), "Failed to decode R5#x: Required field size != 1: 0")
     val getRX = getFeatures("r", "x")
-    val r6 = Schema.newBuilder()
+    val r6 = Schema
+      .newBuilder()
       .required("r", Schema.Type.INT64)
       .optional("x", Schema.Type.INT64)
       .named("R6")
     read(temp, r6).map(getRX) shouldEqual xs.map(getRX)
-    val r7 = Schema.newBuilder()
+    val r7 = Schema
+      .newBuilder()
       .required("r", Schema.Type.INT64)
       .repeated("x", Schema.Type.INT64)
       .named("R7")
     read(temp, r7).map(getRX) shouldEqual xs.map(getRX)
 
     val r8 = Schema.newBuilder().required("r", Schema.Type.FLOAT).named("R8")
-    testException(read(temp, r8),
+    testException(
+      read(temp, r8),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: required float r != required int64 r (INT_64)")
+      "incompatible types: required float r != required int64 r (INT_64)"
+    )
   }
 }

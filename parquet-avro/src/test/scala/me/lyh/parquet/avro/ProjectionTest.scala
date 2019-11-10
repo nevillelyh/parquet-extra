@@ -4,7 +4,6 @@ import me.lyh.parquet.avro.schema.User
 import org.scalatest._
 
 class ProjectionTest extends FlatSpec with Matchers {
-
   val schema = User.getClassSchema
 
   "Projection.apply(g: (T => Any)*)" should "work on top-level field" in {
@@ -35,7 +34,10 @@ class ProjectionTest extends FlatSpec with Matchers {
 
     val s2 = s1.getField("accounts").schema().getElementType
     s2.getFields.size() shouldBe 1
-    s2.getField("amount") shouldEqual schema.getField("accounts").schema().getElementType.getField("amount")
+    s2.getField("amount") shouldEqual schema
+      .getField("accounts")
+      .schema()
+      .getElementType
+      .getField("amount")
   }
-
 }
