@@ -2,8 +2,10 @@ package me.lyh.parquet.avro
 
 import me.lyh.parquet.avro.schema.User
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ProjectionTest extends FlatSpec with Matchers {
+class ProjectionTest extends AnyFlatSpec with Matchers {
   val schema = User.getClassSchema
 
   "Projection.apply(g: (T => Any)*)" should "work on top-level field" in {

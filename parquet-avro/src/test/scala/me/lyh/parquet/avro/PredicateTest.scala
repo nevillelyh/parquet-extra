@@ -5,8 +5,10 @@ import me.lyh.parquet.avro.schema.{TestRecord => TR}
 import org.apache.parquet.filter2.predicate.{FilterApi => F}
 import org.apache.parquet.io.api.Binary
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class PredicateTest extends FlatSpec with Matchers {
+class PredicateTest extends AnyFlatSpec with Matchers {
   val intCol = F.intColumn("int_field")
   val longCol = F.longColumn("long_field")
   val floatCol = F.floatColumn("float_field")
