@@ -8,8 +8,10 @@ import org.apache.hadoop.mapreduce.{Job, TaskAttemptID}
 import org.apache.parquet.hadoop.metadata.CompressionCodecName
 import org.apache.parquet.io.ParquetDecodingException
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ParquetTypeTest extends FlatSpec with Matchers {
+class ParquetTypeTest extends AnyFlatSpec with Matchers {
   private val fs = FileSystem.getLocal(new Configuration())
 
   private def makeTemp: Path = {
