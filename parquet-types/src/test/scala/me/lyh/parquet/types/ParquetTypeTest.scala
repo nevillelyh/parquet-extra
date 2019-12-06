@@ -99,16 +99,15 @@ class ParquetTypeTest extends AnyFlatSpec with Matchers {
   }
 
   it should "support collections" in {
-    val xs = (0 until 10).map(
-      i =>
-        Collections(
-          Array.fill(i)(i),
-          Iterable.fill(i)(i),
-          Seq.fill(i)(i),
-          IndexedSeq.fill(i)(i),
-          List.fill(i)(i),
-          Vector.fill(i)(i)
-        )
+    val xs = (0 until 10).map(i =>
+      Collections(
+        Array.fill(i)(i),
+        Iterable.fill(i)(i),
+        Seq.fill(i)(i),
+        IndexedSeq.fill(i)(i),
+        List.fill(i)(i),
+        Vector.fill(i)(i)
+      )
     )
     val copy = roundTrip(xs)
     copy.map(_.copy(a = null)) shouldEqual xs.map(_.copy(a = null))

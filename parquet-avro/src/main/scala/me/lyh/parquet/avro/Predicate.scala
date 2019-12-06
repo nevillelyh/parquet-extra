@@ -117,12 +117,13 @@ object Predicate {
           c.Expr(predicateFn(fieldName, "eq")).asInstanceOf[c.Expr[FilterPredicate]]
         } else {
           // value can be a null literal with no {toInt, toLong, ...} methods
-          val isNullLiteral = try {
-            val Literal(Constant(null)) = valueExpr
-            true
-          } catch {
-            case _: Exception => false
-          }
+          val isNullLiteral =
+            try {
+              val Literal(Constant(null)) = valueExpr
+              true
+            } catch {
+              case _: Exception => false
+            }
 
           val predicateFn = fieldType match {
             case t if numericTypes.contains(t) =>
