@@ -167,12 +167,12 @@ class ParquetTypeTest extends AnyFlatSpec with Matchers {
     testException(
       read[R1](temp),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: required int32 o (INT_32) != optional int32 o (INT_32)"
+      "incompatible types: required int32 o (INTEGER(32,true)) != optional int32 o (INTEGER(32,true))"
     )
     testException(
       read[R2](temp),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: optional int32 l (INT_32) != repeated int32 l (INT_32)"
+      "incompatible types: optional int32 l (INTEGER(32,true)) != repeated int32 l (INTEGER(32,true))"
     )
 
     // widening repetition
@@ -192,13 +192,13 @@ class ParquetTypeTest extends AnyFlatSpec with Matchers {
     testException(
       read[R8](temp),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: required binary r (UTF8) != required int32 r (INT_32)"
+      "incompatible types: required binary r (STRING) != required int32 r (INTEGER(32,true))"
     )
     val schema = Schema.rename(ParquetType[Inner].schema, "r")
     testException(
       read[R9](temp),
       "The requested schema is not compatible with the file schema.",
-      s"incompatible types: $schema != required int32 r (INT_32)"
+      s"incompatible types: $schema != required int32 r (INTEGER(32,true))"
     )
   }
 }

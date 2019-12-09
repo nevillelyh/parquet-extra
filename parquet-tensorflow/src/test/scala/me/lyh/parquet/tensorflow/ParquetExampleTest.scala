@@ -266,13 +266,13 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
     testException(
       read(temp, r1),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: required int64 o (INT_64) != optional int64 o (INT_64)"
+      "incompatible types: required int64 o (INTEGER(64,true)) != optional int64 o (INTEGER(64,true))"
     )
     val r2 = Schema.newBuilder().optional("l", Schema.Type.INT64).named("R2")
     testException(
       read(temp, r2),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: optional int64 l (INT_64) != repeated int64 l (INT_64)"
+      "incompatible types: optional int64 l (INTEGER(64,true)) != repeated int64 l (INTEGER(64,true))"
     )
 
     val getR = getFeatures("r")
@@ -309,7 +309,7 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
     testException(
       read(temp, r8),
       "The requested schema is not compatible with the file schema.",
-      "incompatible types: required float r != required int64 r (INT_64)"
+      "incompatible types: required float r != required int64 r (INTEGER(64,true))"
     )
   }
 }
