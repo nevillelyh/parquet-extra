@@ -147,3 +147,25 @@ lazy val parquetExamples: Project = Project(
     parquetTypes,
     parquetSchema
   )
+
+lazy val jmh: Project = project
+  .in(file("jmh"))
+  .settings(
+    commonSettings,
+    sourceDirectory in Jmh := (sourceDirectory in Test).value,
+    classDirectory in Jmh := (classDirectory in Test).value,
+    dependencyClasspath in Jmh := (dependencyClasspath in Test).value,
+    // rewire tasks, so that 'jmh:run' automatically invokes 'jmh:compile'
+    // (otherwise a clean 'jmh:run' would fail)
+    compile in Jmh := (compile in Jmh).dependsOn(compile in Test).value,
+    run in Jmh := (run in Jmh).dependsOn(compile in Jmh).evaluated,
+    libraryDependencies ++= Seq(
+      "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Test,
+      "org.apache.parquet" % "parquet-avro" % parquetVersion % Test
+    )
+  )
+  .dependsOn(
+    parquetTensorFlow % Test,
+    parquetTypes % Test,
+  )
+  .enablePlugins(JmhPlugin)
