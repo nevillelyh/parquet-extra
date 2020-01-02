@@ -2,7 +2,7 @@ package me.lyh.parquet.types
 
 import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName
 import org.apache.parquet.schema.Type.Repetition
-import org.apache.parquet.schema.{MessageType, OriginalType, Type, Types}
+import org.apache.parquet.schema.{LogicalTypeAnnotation, MessageType, Type, Types}
 
 import scala.collection.JavaConverters._
 
@@ -11,7 +11,7 @@ private object Schema {
     if (schema.isPrimitive) {
       Types
         .primitive(schema.asPrimitiveType().getPrimitiveTypeName, schema.getRepetition)
-        .as(schema.getOriginalType)
+        .as(schema.getLogicalTypeAnnotation)
         .named(name)
     } else {
       schema
@@ -28,7 +28,7 @@ private object Schema {
     if (schema.isPrimitive) {
       Types
         .primitive(schema.asPrimitiveType().getPrimitiveTypeName, repetition)
-        .as(schema.getOriginalType)
+        .as(schema.getLogicalTypeAnnotation)
         .named(schema.getName)
     } else {
       schema
@@ -40,8 +40,8 @@ private object Schema {
     }
   }
 
-  def primitive(ptn: PrimitiveTypeName, ot: OriginalType = null): Type =
-    Types.required(ptn).as(ot).named(ptn.name())
+  def primitive(ptn: PrimitiveTypeName, lta: LogicalTypeAnnotation = null): Type =
+    Types.required(ptn).as(lta).named(ptn.name())
 
   def message(schema: Type): MessageType = {
     val builder = Types.buildMessage()

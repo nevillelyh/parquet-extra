@@ -5,7 +5,7 @@ import org.apache.parquet.io.ParquetDecodingException
 import org.apache.parquet.io.api.{Binary, Converter, GroupConverter, RecordConsumer}
 import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName
 import org.apache.parquet.schema.Type.Repetition
-import org.apache.parquet.schema.{OriginalType, Type, Types}
+import org.apache.parquet.schema.{LogicalTypeAnnotation, Type, Types}
 
 import scala.annotation.implicitNotFound
 import scala.language.experimental.macros
@@ -86,12 +86,14 @@ object ParquetType {
     override private[types] def newConverter: TypeConverter[Boolean] = TypeConverter.newBoolean
   }
   implicit val intType: ParquetType[Int] = new PrimitiveType[Int] {
-    override def schema: Type = Schema.primitive(PrimitiveTypeName.INT32, OriginalType.INT_32)
+    override def schema: Type =
+      Schema.primitive(PrimitiveTypeName.INT32, LogicalTypeAnnotation.intType(32, true))
     override private[types] def write(c: RecordConsumer, v: Int): Unit = c.addInteger(v)
     override private[types] def newConverter: TypeConverter[Int] = TypeConverter.newInt
   }
   implicit val longType: ParquetType[Long] = new PrimitiveType[Long] {
-    override def schema: Type = Schema.primitive(PrimitiveTypeName.INT64, OriginalType.INT_64)
+    override def schema: Type =
+      Schema.primitive(PrimitiveTypeName.INT64, LogicalTypeAnnotation.intType(64, true))
     override private[types] def write(c: RecordConsumer, v: Long): Unit = c.addLong(v)
     override private[types] def newConverter: TypeConverter[Long] = TypeConverter.newLong
   }
@@ -113,14 +115,16 @@ object ParquetType {
       TypeConverter.newByteArray
   }
   implicit val charSequenceType: ParquetType[CharSequence] = new PrimitiveType[CharSequence] {
-    override def schema: Type = Schema.primitive(PrimitiveTypeName.BINARY, OriginalType.UTF8)
+    override def schema: Type =
+      Schema.primitive(PrimitiveTypeName.BINARY, LogicalTypeAnnotation.stringType())
     override private[types] def write(c: RecordConsumer, v: CharSequence): Unit =
       c.addBinary(Binary.fromCharSequence(v))
     override private[types] def newConverter: TypeConverter[CharSequence] =
       TypeConverter.newCharSequence
   }
   implicit val stringType: ParquetType[String] = new PrimitiveType[String] {
-    override def schema: Type = Schema.primitive(PrimitiveTypeName.BINARY, OriginalType.UTF8)
+    override def schema: Type =
+      Schema.primitive(PrimitiveTypeName.BINARY, LogicalTypeAnnotation.stringType())
     override private[types] def write(c: RecordConsumer, v: String): Unit =
       c.addBinary(Binary.fromString(v))
     override private[types] def newConverter: TypeConverter[String] = TypeConverter.newString
