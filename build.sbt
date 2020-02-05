@@ -104,6 +104,35 @@ lazy val parquetTensorFlow: Project = Project(
   )
 )
 
+lazy val tfpq: Project = Project(
+  "tfpq",
+  file("tfpq")
+).settings(
+    commonSettings,
+    libraryDependencies ++= Seq(
+      "com.github.alexarchambault" %% "case-app" % "2.0.0-M11",
+      "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
+      "com.google.cloud.bigdataoss" % "gcs-connector" % "hadoop3-2.0.0",
+      "org.slf4j" % "slf4j-api" % "1.7.30",
+      "org.slf4j" % "slf4j-simple" % "1.7.30"
+    ),
+    assemblyMergeStrategy in assembly := {
+      case s if s.endsWith(".properties")          => MergeStrategy.filterDistinctLines
+      case s if s.endsWith("pom.xml")              => MergeStrategy.discard
+      case PathList("LICENSE")                     => MergeStrategy.discard
+      case PathList("NOTICE")                      => MergeStrategy.discard
+      case PathList("META-INF", "services", _ @_*) => MergeStrategy.filterDistinctLines
+      case PathList("META-INF", "DEPENDENCIES")    => MergeStrategy.discard
+      case PathList("META-INF", "LICENSE")         => MergeStrategy.discard
+      case PathList("META-INF", "LICENSE.txt")     => MergeStrategy.discard
+      case PathList("META-INF", "MANIFEST.MF")     => MergeStrategy.discard
+      case PathList("META-INF", "NOTICE")          => MergeStrategy.discard
+      case PathList("META-INF", "NOTICE.txt")      => MergeStrategy.discard
+      case _                                       => MergeStrategy.deduplicate
+    }
+  )
+  .dependsOn(parquetTensorFlow)
+
 lazy val parquetTypes: Project = Project(
   "parquet-types",
   file("parquet-types")
