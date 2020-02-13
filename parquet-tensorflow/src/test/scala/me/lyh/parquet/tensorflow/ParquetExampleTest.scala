@@ -8,7 +8,6 @@ import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl
 import org.apache.hadoop.mapreduce.{Job, TaskAttemptID}
 import org.apache.parquet.hadoop.metadata.CompressionCodecName
 import org.apache.parquet.io.ParquetDecodingException
-import org.scalatest._
 import org.tensorflow.example.{BytesList, Example, Feature, Features, FloatList, Int64List}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers

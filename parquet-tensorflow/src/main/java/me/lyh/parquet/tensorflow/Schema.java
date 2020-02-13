@@ -4,19 +4,15 @@ import com.google.protobuf.ByteString;
 import me.lyh.parquet.tensorflow.ExampleConverter.FeatureConverter;
 import org.apache.parquet.Preconditions;
 import org.apache.parquet.io.api.Binary;
-import org.apache.parquet.io.api.PrimitiveConverter;
 import org.apache.parquet.io.api.RecordConsumer;
-import org.apache.parquet.schema.MessageType;
-import org.apache.parquet.schema.OriginalType;
-import org.apache.parquet.schema.PrimitiveType;
-import org.apache.parquet.schema.Types;
+import org.apache.parquet.schema.*;
 import org.tensorflow.example.Feature;
 import org.tensorflow.example.Features;
+import shaded.parquet.com.fasterxml.jackson.core.JsonProcessingException;
+import shaded.parquet.com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 public class Schema {
   public enum Type {
@@ -111,9 +107,7 @@ public class Schema {
     },
     REPEATED(org.apache.parquet.schema.Type.Repetition.REPEATED) {
       @Override
-      void checkSize(int count) {
-        return;
-      }
+      void checkSize(int count) {}
     };
 
     private final org.apache.parquet.schema.Type.Repetition parquet;
@@ -134,9 +128,11 @@ public class Schema {
   }
 
   public static class Field {
-    private final String name;
-    private final Type type;
-    private final Repetition repetition;
+    private String name;
+    private Type type;
+    private Repetition repetition;
+
+    private Field() {}
 
     private Field(String name, Type type, Repetition repetition) {
       this.name = name;
@@ -148,11 +144,19 @@ public class Schema {
       return name;
     }
 
+    public Type getType() {
+      return type;
+    }
+
+    public Repetition getRepetition() {
+      return repetition;
+    }
+
     public PrimitiveType toParquet() {
       Types.PrimitiveBuilder<PrimitiveType> builder =
           Types.primitive(type.parquet, repetition.parquet);
       return type.parquet == PrimitiveType.PrimitiveTypeName.INT64
-          ? builder.as(OriginalType.INT_64).named(name)
+          ? builder.as(LogicalTypeAnnotation.intType(64, true)).named(name)
           : builder.named(name);
     }
 
@@ -173,6 +177,8 @@ public class Schema {
       return type.newConverter(repetition);
     }
   }
+
+  ////////////////////////////////////////
 
   public static class Builder {
     private final Set<String> names;
@@ -213,8 +219,10 @@ public class Schema {
 
   ////////////////////////////////////////
 
-  private final String name;
-  private final List<Field> fields;
+  private String name;
+  private List<Field> fields;
+
+  private Schema() {}
 
   private Schema(String name, List<Field> fields) {
     this.name = name;
@@ -228,6 +236,8 @@ public class Schema {
   public List<Field> getFields() {
     return fields;
   }
+
+  ////////////////////////////////////////
 
   public MessageType toParquet() {
     Types.MessageTypeBuilder builder = Types.buildMessage();
@@ -244,5 +254,41 @@ public class Schema {
       builder.addField(field.name, field.type, field.repetition);
     }
     return builder.named(schema.getName());
+  }
+
+  ////////////////////////////////////////
+
+  private static final ObjectMapper mapper = new ObjectMapper();
+
+  public String toJson() {
+    try {
+      return mapper.writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static Schema fromJson(String json) throws IOException {
+    return mapper.readValue(json, Schema.class);
+  }
+
+  ////////////////////////////////////////
+
+  @Override
+  public String toString() {
+    return toParquet().toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Schema schema = (Schema) o;
+    return this.toParquet().equals(schema.toParquet());
+  }
+
+  @Override
+  public int hashCode() {
+    return this.toParquet().hashCode();
   }
 }
