@@ -74,14 +74,15 @@ object Test {
     job.setOutputFormatClass(classOf[ExampleParquetOutputFormat])
     ExampleParquetOutputFormat.setSchema(job, schema)
     val outputFormat = new ExampleParquetOutputFormat()
-    val outputPath = new Path("examples.snappy.parquet")
+    val outputPath = new Path("examples5m.snappy.parquet")
     val writer = outputFormat.getRecordWriter(job.getConfiguration, outputPath, CompressionCodecName.SNAPPY)
 
+    val m = 1000000
     var i = 0
-    while (i < 1000000) {
+    while (i < 5 * m) {
       writer.write(null, record(i))
       i += 1
-      if (i % 1000 == 0) {
+      if (i % 100000 == 0) {
         println(i)
       }
     }
