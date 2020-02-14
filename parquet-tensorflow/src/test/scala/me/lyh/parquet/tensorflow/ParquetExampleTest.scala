@@ -360,7 +360,7 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
     )
   }
 
-  it should "fail unmatched fileds" in {
+  it should "fail unmatched fields" in {
     val schema = Schema
       .newBuilder()
       .required("long", Schema.Type.INT64)
