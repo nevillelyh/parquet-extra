@@ -6,11 +6,14 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl
 import org.apache.hadoop.mapreduce.{Job, TaskAttemptID}
+import org.apache.parquet.hadoop.{ParquetInputFormat, ParquetReader}
 import org.apache.parquet.hadoop.metadata.CompressionCodecName
 import org.apache.parquet.io.ParquetDecodingException
 import org.tensorflow.example.{BytesList, Example, Feature, Features, FloatList, Int64List}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+
+import scala.collection.JavaConverters._
 
 class ParquetExampleTest extends AnyFlatSpec with Matchers {
   private val fs = FileSystem.getLocal(new Configuration())
@@ -29,8 +32,13 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
     writer.close()
   }
 
-  private def read(path: Path, schema: Schema): Seq[Example] = {
-    val reader = ExampleParquetReader.builder(path).withSchema(schema).build();
+  private def read(path: Path, schema: Schema): Seq[Example] =
+    read(ExampleParquetReader.builder(path).withSchema(schema).build())
+
+  private def read(path: Path, fields: Seq[String]): Seq[Example] =
+    read(ExampleParquetReader.builder(path).withFields(fields.asJava).build())
+
+  private def read(reader: ParquetReader[Example]): Seq[Example] = {
     val b = Seq.newBuilder[Example]
     var r = reader.read()
     while (r != null) {
@@ -62,18 +70,30 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
       )
       .build()
 
-  private def bytes(xs: ByteString*) =
+  private def bytes(xs: String*) =
     Feature
       .newBuilder()
       .setBytesList(
-        xs.foldLeft(BytesList.newBuilder())(_.addValue(_))
+        xs.map(ByteString.copyFromUtf8).foldLeft(BytesList.newBuilder())(_.addValue(_))
       )
       .build()
 
-  private def getFeatures(keys: String*): Example => Seq[(String, Option[Feature])] =
+  private def getFeatures(keys: String*): Example => Example = {
+    val keySet = keys.toSet
     (e: Example) => {
-      keys.map(k => (k, Option(e.getFeatures.getFeatureOrDefault(k, null))))
+      val features = e.getFeatures.getFeatureMap.asScala
+        .foldLeft(Features.newBuilder()) {
+          case (b, (k, v)) =>
+            if (keySet.contains(k)) {
+              b.putFeature(k, v)
+            } else {
+              b
+            }
+        }
+        .build()
+      Example.newBuilder().setFeatures(features).build()
     }
+  }
 
   private def testException(fun: => Any, msgs: String*) = {
     val e = the[ParquetDecodingException] thrownBy fun
@@ -96,7 +116,7 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
             .newBuilder()
             .putFeature("long", longs(i))
             .putFeature("float", floats(i))
-            .putFeature("bytes", bytes(ByteString.copyFromUtf8(i.toString)))
+            .putFeature("bytes", bytes(i.toString))
         )
         .build()
     }
@@ -110,19 +130,48 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
     writer.close(null)
 
     job.setInputFormatClass(classOf[ExampleParquetInputFormat])
-    ExampleParquetInputFormat.setSchema(job, schema)
-    val inputFormat = new ExampleParquetInputFormat()
-    val context = new TaskAttemptContextImpl(job.getConfiguration, new TaskAttemptID())
-    FileInputFormat.setInputPaths(job, temp)
-    val split = inputFormat.getSplits(job).get(0)
-    val reader = inputFormat.createRecordReader(split, context)
-    reader.initialize(split, context)
-    val b = Seq.newBuilder[Example]
-    while (reader.nextKeyValue()) {
-      b += reader.getCurrentValue
+
+    def read(): Seq[Example] = {
+      val inputFormat = new ExampleParquetInputFormat()
+      val context = new TaskAttemptContextImpl(job.getConfiguration, new TaskAttemptID())
+      FileInputFormat.setInputPaths(job, temp)
+      val split = inputFormat.getSplits(job).get(0)
+      val reader = inputFormat.createRecordReader(split, context)
+      reader.initialize(split, context)
+      val b = Seq.newBuilder[Example]
+      while (reader.nextKeyValue()) {
+        b += reader.getCurrentValue
+      }
+      reader.close()
+      b.result()
     }
-    reader.close()
-    b.result() shouldEqual xs
+
+    // no schema or fields
+    ParquetInputFormat.setReadSupportClass(job, classOf[ExampleReadSupport])
+    read() shouldEqual xs
+
+    // writer schema
+    ExampleParquetInputFormat.setSchema(job, schema)
+    read() shouldEqual xs
+    job.getConfiguration.unset(ExampleParquetInputFormat.SCHEMA_KEY)
+
+    // projected schema
+    ExampleParquetInputFormat.setSchema(
+      job,
+      Schema.newBuilder().required("long", Schema.Type.INT64).named("Schema")
+    )
+    read() shouldEqual xs.map(getFeatures("long"))
+    job.getConfiguration.unset(ExampleParquetInputFormat.SCHEMA_KEY)
+
+    // all fields
+    ExampleParquetInputFormat.setFields(job, Seq("long", "float", "bytes").asJava)
+    read() shouldEqual xs
+    job.getConfiguration.unset(ExampleParquetInputFormat.FIELDS_KEY)
+
+    // projected fields
+    ExampleParquetInputFormat.setFields(job, Seq("long").asJava)
+    read() shouldEqual xs.map(getFeatures("long"))
+    job.getConfiguration.unset(ExampleParquetInputFormat.FIELDS_KEY)
   }
 
   it should "round trip primitives" in {
@@ -140,7 +189,7 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
             .newBuilder()
             .putFeature("long", longs(i))
             .putFeature("float", floats(i))
-            .putFeature("bytes", bytes(ByteString.copyFromUtf8(i.toString)))
+            .putFeature("bytes", bytes(i.toString))
         )
         .build()
     }
@@ -177,7 +226,7 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
             .newBuilder()
             .putFeature("long", longs(i))
             .putFeature("float", floats(i))
-            .putFeature("bytes", bytes(ByteString.copyFromUtf8(i.toString)))
+            .putFeature("bytes", bytes(i.toString))
         )
         .build()
     }
@@ -191,20 +240,21 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
       .required("long", Schema.Type.INT64)
       .named("Reader1")
     read(temp, reader1) shouldEqual xs
+    read(temp, Seq("bytes", "float", "long")) shouldEqual xs
 
     val reader2 = Schema
       .newBuilder()
       .required("long", Schema.Type.INT64)
       .named("Reader2")
-    val f = getFeatures("long")
-    read(temp, reader2).map(f) shouldEqual xs.map(f)
+    read(temp, reader2) shouldEqual xs.map(getFeatures("long"))
+    read(temp, Seq("long")) shouldEqual xs.map(getFeatures("long"))
 
     val reader3 = Schema
       .newBuilder()
       .required("float", Schema.Type.FLOAT)
       .named("Reader3")
-    val g = getFeatures("float")
-    read(temp, reader3).map(g) shouldEqual xs.map(g)
+    read(temp, reader3) shouldEqual xs.map(getFeatures("float"))
+    read(temp, Seq("float")) shouldEqual xs.map(getFeatures("float"))
   }
 
   it should "round trip repetition projection" in {
@@ -228,20 +278,21 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
       .optional("o", Schema.Type.INT64)
       .named("Reader1")
     read(temp, reader1) shouldEqual xs
+    read(temp, Seq("l", "o")) shouldEqual xs
 
     val reader2 = Schema
       .newBuilder()
       .repeated("l", Schema.Type.INT64)
       .named("Reader2")
-    val f = getFeatures("l")
-    read(temp, reader2).map(f) shouldEqual xs.map(f)
+    read(temp, reader2) shouldEqual xs.map(getFeatures("l"))
+    read(temp, Seq("l")) shouldEqual xs.map(getFeatures("l"))
 
     val reader3 = Schema
       .newBuilder()
       .optional("o", Schema.Type.INT64)
       .named("Reader3")
-    val g = getFeatures("o")
-    read(temp, reader3).map(g) shouldEqual xs.map(g)
+    read(temp, reader3) shouldEqual xs.map(getFeatures("o"))
+    read(temp, Seq("o")) shouldEqual xs.map(getFeatures("o"))
   }
 
   it should "support schema evolution" in {
@@ -274,14 +325,11 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
       "incompatible types: optional int64 l (INTEGER(64,true)) != repeated int64 l (INTEGER(64,true))"
     )
 
-    val getR = getFeatures("r")
-    val getO = getFeatures("o")
-
     // widening repetition
     val r3 = Schema.newBuilder().optional("r", Schema.Type.INT64).named("R3")
-    read(temp, r3).map(getR) shouldEqual xs.map(getR)
+    read(temp, r3) shouldEqual xs.map(getFeatures("r"))
     val r4 = Schema.newBuilder().repeated("o", Schema.Type.INT64).named("R4")
-    read(temp, r4).map(getO) shouldEqual xs.map(getO)
+    read(temp, r4) shouldEqual xs.map(getFeatures("o"))
 
     // new fields
     val r5 = Schema
@@ -296,13 +344,13 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
       .required("r", Schema.Type.INT64)
       .optional("x", Schema.Type.INT64)
       .named("R6")
-    read(temp, r6).map(getRX) shouldEqual xs.map(getRX)
+    read(temp, r6) shouldEqual xs.map(getRX)
     val r7 = Schema
       .newBuilder()
       .required("r", Schema.Type.INT64)
       .repeated("x", Schema.Type.INT64)
       .named("R7")
-    read(temp, r7).map(getRX) shouldEqual xs.map(getRX)
+    read(temp, r7) shouldEqual xs.map(getRX)
 
     val r8 = Schema.newBuilder().required("r", Schema.Type.FLOAT).named("R8")
     testException(

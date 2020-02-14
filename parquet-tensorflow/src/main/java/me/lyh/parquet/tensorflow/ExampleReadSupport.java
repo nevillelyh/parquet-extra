@@ -7,13 +7,16 @@ import org.apache.parquet.io.api.GroupConverter;
 import org.apache.parquet.io.api.RecordMaterializer;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.MessageTypeParser;
+import org.apache.parquet.schema.Type;
+import org.apache.parquet.schema.Types;
 import org.tensorflow.example.Example;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ExampleReadSupport extends ReadSupport<Example> {
   private Schema schema;
+  private Set<String> fields;
 
   public ExampleReadSupport() {}
 
@@ -21,16 +24,30 @@ public class ExampleReadSupport extends ReadSupport<Example> {
     this.schema = schema;
   }
 
+  public ExampleReadSupport(Collection<String> fields) {
+    this.fields = new HashSet<>(fields);
+  }
+
   @Override
   public ReadContext init(InitContext context) {
     MessageType messageType;
-    if (schema == null) {
-      String schemaString = context.getConfiguration().get(ExampleParquetInputFormat.SCHEMA_KEY);
-      messageType = MessageTypeParser.parseMessageType(schemaString);
-      schema = Schema.fromParquet(messageType);
-    } else {
+    if (schema != null) {
       messageType = schema.toParquet();
+    } else if (fields != null) {
+      messageType = projectFileSchema(context, fields);
+    } else {
+      String schemaString = context.getConfiguration().get(ExampleParquetInputFormat.SCHEMA_KEY);
+      String fieldsString = context.getConfiguration().get(ExampleParquetInputFormat.FIELDS_KEY);
+      if (schemaString != null) {
+        messageType = MessageTypeParser.parseMessageType(schemaString);
+      } else if (fieldsString != null) {
+        fields = Arrays.stream(fieldsString.split(",")).collect(Collectors.toSet());
+        messageType = projectFileSchema(context, fields);
+      } else {
+        messageType = context.getFileSchema();
+      }
     }
+
     return new ReadContext(messageType, Collections.emptyMap());
   }
 
@@ -53,5 +70,18 @@ public class ExampleReadSupport extends ReadSupport<Example> {
         return exampleConverter;
       }
     };
+  }
+
+  private static MessageType projectFileSchema(InitContext context, Set<String> fields) {
+    MessageType fileSchema = context.getFileSchema();
+
+    Types.MessageTypeBuilder builder = Types.buildMessage();
+    for (Type field : fileSchema.getFields()) {
+      if (fields.contains(field.getName())) {
+        builder.addField(field);
+      }
+    }
+
+    return builder.named(fileSchema.getName());
   }
 }

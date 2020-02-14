@@ -7,6 +7,10 @@ import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.io.InputFile;
 import org.tensorflow.example.Example;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 public class ExampleParquetReader {
   private ExampleParquetReader() {}
 
@@ -20,6 +24,7 @@ public class ExampleParquetReader {
 
   public static class Builder extends ParquetReader.Builder<Example> {
     private Schema schema;
+    private Set<String> fields;
 
     protected Builder(Path path) {
       super(path);
@@ -30,14 +35,26 @@ public class ExampleParquetReader {
     }
 
     public Builder withSchema(Schema schema) {
+      Preconditions.checkState(fields == null, "Only one of [schema, fields] can be set");
       this.schema = schema;
+      return this;
+    }
+
+    public Builder withFields(Collection<String> fields) {
+      Preconditions.checkState(schema == null, "Only one of [schema, fields] can be set");
+      this.fields = new HashSet<>(fields);
       return this;
     }
 
     @Override
     protected ReadSupport<Example> getReadSupport() {
-      Preconditions.checkNotNull(schema, "schema");
-      return new ExampleReadSupport(schema);
+      if (schema != null) {
+        return new ExampleReadSupport(schema);
+      } else if (fields != null) {
+        return new ExampleReadSupport(fields);
+      } else {
+        return new ExampleReadSupport();
+      }
     }
   }
 }
