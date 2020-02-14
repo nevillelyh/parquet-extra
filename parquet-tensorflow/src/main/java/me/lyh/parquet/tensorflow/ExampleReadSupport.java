@@ -1,6 +1,7 @@
 package me.lyh.parquet.tensorflow;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.parquet.Preconditions;
 import org.apache.parquet.hadoop.api.InitContext;
 import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.io.api.GroupConverter;
@@ -74,14 +75,17 @@ public class ExampleReadSupport extends ReadSupport<Example> {
 
   private static MessageType projectFileSchema(InitContext context, Set<String> fields) {
     MessageType fileSchema = context.getFileSchema();
+    Set<String> unmatched = new TreeSet<>(fields);
 
     Types.MessageTypeBuilder builder = Types.buildMessage();
     for (Type field : fileSchema.getFields()) {
-      if (fields.contains(field.getName())) {
+      if (unmatched.contains(field.getName())) {
         builder.addField(field);
+        unmatched.remove(field.getName());
       }
     }
 
+    Preconditions.checkState(unmatched.isEmpty(), "Invalid fields: " + unmatched);
     return builder.named(fileSchema.getName());
   }
 }

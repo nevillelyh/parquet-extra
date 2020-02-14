@@ -359,4 +359,34 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
       "incompatible types: required float r != required int64 r (INTEGER(64,true))"
     )
   }
+
+  it should "fail unmatched fileds" in {
+    val schema = Schema
+      .newBuilder()
+      .required("long", Schema.Type.INT64)
+      .required("float", Schema.Type.FLOAT)
+      .required("bytes", Schema.Type.BYTES)
+      .named("Schema")
+    val xs = (0 until 10).map { i =>
+      Example
+        .newBuilder()
+        .setFeatures(
+          Features
+            .newBuilder()
+            .putFeature("long", longs(i))
+            .putFeature("float", floats(i))
+            .putFeature("bytes", bytes(i.toString))
+        )
+        .build()
+    }
+    val temp = makeTemp
+    write(temp, schema, xs)
+
+    val reader = ExampleParquetReader
+      .builder(temp)
+      .withFields(Seq("long", "float", "bytes", "x", "y", "z").asJava)
+      .build()
+    val msg = "Invalid fields: [x, y, z]"
+    the[IllegalStateException] thrownBy reader.read() should have message msg
+  }
 }
