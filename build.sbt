@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 
 val avroVersion = "1.9.2"
+val beamVersion = "2.19.0"
 val hadoopVersion = "3.2.1"
 val magnoliaVersion = "0.12.6"
 val parquetVersion = "1.11.0"
@@ -65,6 +66,7 @@ lazy val root: Project = Project(
   )
   .aggregate(
     parquetAvro,
+    parquetBeam,
     parquetTensorFlow,
     parquetTypes,
     parquetExamples
@@ -86,6 +88,25 @@ lazy val parquetAvro: Project = Project(
   .dependsOn(
     parquetSchema % Test
   )
+
+lazy val parquetBeam: Project = Project(
+  "parquet-beam",
+  file("parquet-beam")
+).settings(
+  commonSettings,
+  crossPaths := false,
+  autoScalaLibrary := false,
+  publishArtifact := scalaBinaryVersion.value == "2.12",
+  libraryDependencies ++= Seq(
+    "org.apache.beam" % "beam-sdks-java-core" % beamVersion,
+    "org.apache.parquet" % "parquet-common" % parquetVersion,
+    "org.apache.avro" % "avro" % avroVersion % Test,
+    "org.scalatest" %% "scalatest" % scalatestVersion % Test
+  )
+)
+.dependsOn(
+  parquetSchema % Test
+)
 
 lazy val parquetTensorFlow: Project = Project(
   "parquet-tensorflow",
