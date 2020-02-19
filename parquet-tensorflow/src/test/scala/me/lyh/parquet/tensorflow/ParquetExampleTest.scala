@@ -100,33 +100,35 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
     msgs.foreach(m => e.getCause.getMessage should include(m))
   }
 
+  private val primitiveSchema = Schema
+    .newBuilder()
+    .required("long", Schema.Type.INT64)
+    .required("float", Schema.Type.FLOAT)
+    .required("bytes", Schema.Type.BYTES)
+    .named("Schema")
+
+  private val primitiveExamples = (0 until 10).map { i =>
+    Example
+      .newBuilder()
+      .setFeatures(
+        Features
+          .newBuilder()
+          .putFeature("long", longs(i))
+          .putFeature("float", floats(i))
+          .putFeature("bytes", bytes(i.toString))
+      )
+      .build()
+  }
+
   "ParquetExample" should "work with Hadoop" in {
     val temp = makeTemp
-    val schema = Schema
-      .newBuilder()
-      .required("long", Schema.Type.INT64)
-      .required("float", Schema.Type.FLOAT)
-      .required("bytes", Schema.Type.BYTES)
-      .named("Schema")
-    val xs = (0 until 10).map { i =>
-      Example
-        .newBuilder()
-        .setFeatures(
-          Features
-            .newBuilder()
-            .putFeature("long", longs(i))
-            .putFeature("float", floats(i))
-            .putFeature("bytes", bytes(i.toString))
-        )
-        .build()
-    }
     val job = Job.getInstance()
 
     job.setOutputFormatClass(classOf[ExampleParquetOutputFormat])
-    ExampleParquetOutputFormat.setSchema(job, schema)
+    ExampleParquetOutputFormat.setSchema(job, primitiveSchema)
     val outputFormat = new ExampleParquetOutputFormat()
     val writer = outputFormat.getRecordWriter(job.getConfiguration, temp, CompressionCodecName.GZIP)
-    xs.foreach(writer.write(null, _))
+    primitiveExamples.foreach(writer.write(null, _))
     writer.close(null)
 
     job.setInputFormatClass(classOf[ExampleParquetInputFormat])
@@ -148,11 +150,11 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
 
     // no schema or fields
     ParquetInputFormat.setReadSupportClass(job, classOf[ExampleReadSupport])
-    read() shouldEqual xs
+    read() shouldEqual primitiveExamples
 
     // writer schema
-    ExampleParquetInputFormat.setSchema(job, schema)
-    read() shouldEqual xs
+    ExampleParquetInputFormat.setSchema(job, primitiveSchema)
+    read() shouldEqual primitiveExamples
     job.getConfiguration.unset(ExampleParquetInputFormat.SCHEMA_KEY)
 
     // projected schema
@@ -160,40 +162,22 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
       job,
       Schema.newBuilder().required("long", Schema.Type.INT64).named("Schema")
     )
-    read() shouldEqual xs.map(getFeatures("long"))
+    read() shouldEqual primitiveExamples.map(getFeatures("long"))
     job.getConfiguration.unset(ExampleParquetInputFormat.SCHEMA_KEY)
 
     // all fields
     ExampleParquetInputFormat.setFields(job, Seq("long", "float", "bytes").asJava)
-    read() shouldEqual xs
+    read() shouldEqual primitiveExamples
     job.getConfiguration.unset(ExampleParquetInputFormat.FIELDS_KEY)
 
     // projected fields
     ExampleParquetInputFormat.setFields(job, Seq("long").asJava)
-    read() shouldEqual xs.map(getFeatures("long"))
+    read() shouldEqual primitiveExamples.map(getFeatures("long"))
     job.getConfiguration.unset(ExampleParquetInputFormat.FIELDS_KEY)
   }
 
   it should "round trip primitives" in {
-    val schema = Schema
-      .newBuilder()
-      .required("long", Schema.Type.INT64)
-      .required("float", Schema.Type.FLOAT)
-      .required("bytes", Schema.Type.BYTES)
-      .named("Schema")
-    val xs = (0 until 10).map { i =>
-      Example
-        .newBuilder()
-        .setFeatures(
-          Features
-            .newBuilder()
-            .putFeature("long", longs(i))
-            .putFeature("float", floats(i))
-            .putFeature("bytes", bytes(i.toString))
-        )
-        .build()
-    }
-    roundTrip(schema, xs) shouldEqual xs
+    roundTrip(primitiveSchema, primitiveExamples) shouldEqual primitiveExamples
   }
 
   it should "round trip repetition" in {
@@ -212,26 +196,8 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
   }
 
   it should "round trip primitives projection" in {
-    val schema = Schema
-      .newBuilder()
-      .required("long", Schema.Type.INT64)
-      .required("float", Schema.Type.FLOAT)
-      .required("bytes", Schema.Type.BYTES)
-      .named("Schema")
-    val xs = (0 until 10).map { i =>
-      Example
-        .newBuilder()
-        .setFeatures(
-          Features
-            .newBuilder()
-            .putFeature("long", longs(i))
-            .putFeature("float", floats(i))
-            .putFeature("bytes", bytes(i.toString))
-        )
-        .build()
-    }
     val temp = makeTemp
-    write(temp, schema, xs)
+    write(temp, primitiveSchema, primitiveExamples)
 
     val reader1 = Schema
       .newBuilder()
@@ -239,22 +205,22 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
       .required("float", Schema.Type.FLOAT)
       .required("long", Schema.Type.INT64)
       .named("Reader1")
-    read(temp, reader1) shouldEqual xs
-    read(temp, Seq("bytes", "float", "long")) shouldEqual xs
+    read(temp, reader1) shouldEqual primitiveExamples
+    read(temp, Seq("bytes", "float", "long")) shouldEqual primitiveExamples
 
     val reader2 = Schema
       .newBuilder()
       .required("long", Schema.Type.INT64)
       .named("Reader2")
-    read(temp, reader2) shouldEqual xs.map(getFeatures("long"))
-    read(temp, Seq("long")) shouldEqual xs.map(getFeatures("long"))
+    read(temp, reader2) shouldEqual primitiveExamples.map(getFeatures("long"))
+    read(temp, Seq("long")) shouldEqual primitiveExamples.map(getFeatures("long"))
 
     val reader3 = Schema
       .newBuilder()
       .required("float", Schema.Type.FLOAT)
       .named("Reader3")
-    read(temp, reader3) shouldEqual xs.map(getFeatures("float"))
-    read(temp, Seq("float")) shouldEqual xs.map(getFeatures("float"))
+    read(temp, reader3) shouldEqual primitiveExamples.map(getFeatures("float"))
+    read(temp, Seq("float")) shouldEqual primitiveExamples.map(getFeatures("float"))
   }
 
   it should "round trip repetition projection" in {
@@ -361,26 +327,8 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
   }
 
   it should "fail unmatched fields" in {
-    val schema = Schema
-      .newBuilder()
-      .required("long", Schema.Type.INT64)
-      .required("float", Schema.Type.FLOAT)
-      .required("bytes", Schema.Type.BYTES)
-      .named("Schema")
-    val xs = (0 until 10).map { i =>
-      Example
-        .newBuilder()
-        .setFeatures(
-          Features
-            .newBuilder()
-            .putFeature("long", longs(i))
-            .putFeature("float", floats(i))
-            .putFeature("bytes", bytes(i.toString))
-        )
-        .build()
-    }
     val temp = makeTemp
-    write(temp, schema, xs)
+    write(temp, primitiveSchema, primitiveExamples)
 
     val reader = ExampleParquetReader
       .builder(temp)
@@ -388,5 +336,13 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
       .build()
     val msg = "Invalid fields: [x, y, z]"
     the[IllegalStateException] thrownBy reader.read() should have message msg
+  }
+
+  it should "support getSchema" in {
+    val temp = makeTemp
+    write(temp, primitiveSchema, primitiveExamples)
+
+    val fileSchema = ExampleParquetReader.getSchema(temp, Job.getInstance().getConfiguration)
+    fileSchema shouldBe primitiveSchema
   }
 }

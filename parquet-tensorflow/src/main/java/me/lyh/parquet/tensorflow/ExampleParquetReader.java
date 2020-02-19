@@ -1,12 +1,16 @@
 package me.lyh.parquet.tensorflow;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.Preconditions;
+import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
+import org.apache.parquet.hadoop.util.HadoopInputFile;
 import org.apache.parquet.io.InputFile;
 import org.tensorflow.example.Example;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -56,5 +60,13 @@ public class ExampleParquetReader {
         return new ExampleReadSupport();
       }
     }
+  }
+
+  public static Schema getSchema(Path path, Configuration conf) throws IOException {
+    return getSchema(HadoopInputFile.fromPath(path, conf));
+  }
+
+  public static Schema getSchema(InputFile file) throws IOException {
+    return Schema.fromParquet(ParquetFileReader.open(file).getFileMetaData().getSchema());
   }
 }
