@@ -10,7 +10,7 @@ val tensorFlowVersion = "1.15.0"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization := "me.lyh",
-  scalaVersion := "2.13.1",
+  scalaVersion := "2.12.10",
   crossScalaVersions := Seq("2.11.12", "2.12.10", "2.13.1"),
   scalacOptions ++= Seq("-target:jvm-1.8", "-deprecation", "-feature", "-unchecked"),
   scalacOptions ++= (scalaBinaryVersion.value match {
@@ -99,7 +99,8 @@ lazy val parquetTensorFlow: Project = Project(
     "org.apache.parquet" % "parquet-column" % parquetVersion,
     "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
     "org.tensorflow" % "proto" % tensorFlowVersion,
-    "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided,
+    "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
+    "com.spotify" %% "scio-smb" % "0.8.1",
     "org.scalatest" %% "scalatest" % scalatestVersion % Test
   )
 )
