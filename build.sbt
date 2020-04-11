@@ -3,7 +3,7 @@ import Keys._
 
 val avroVersion = "1.9.2"
 val hadoopVersion = "3.2.1"
-val magnoliaVersion = "0.14.3"
+val magnoliaVersion = "0.14.4"
 val parquetVersion = "1.11.0"
 val scalatestVersion = "3.1.1"
 val tensorFlowVersion = "1.15.0"
