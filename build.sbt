@@ -129,7 +129,7 @@ lazy val parquetSchema: Project = Project(
   file("parquet-schema")
 ).settings(
   commonSettings ++ noPublishSettings,
-  version in AvroConfig := avroVersion
+  avroLibVersion := avroVersion
 )
 
 lazy val parquetExamples: Project = Project(
