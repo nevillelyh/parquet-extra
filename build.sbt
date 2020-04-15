@@ -75,7 +75,7 @@ lazy val parquetAvro: Project = Project(
   file("parquet-avro")
 ).settings(
     commonSettings,
-    libraryDependencies += ("org.scala-lang" % "scala-reflect" % scalaVersion.value),
+    libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     libraryDependencies ++= Seq(
       "org.apache.avro" % "avro" % avroVersion,
       "org.apache.avro" % "avro-compiler" % avroVersion,
