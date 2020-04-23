@@ -114,7 +114,7 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
         Features
           .newBuilder()
           .putFeature("long", longs(i))
-          .putFeature("float", floats(i))
+          .putFeature("float", floats(i.toFloat))
           .putFeature("bytes", bytes(i.toString))
       )
       .build()
