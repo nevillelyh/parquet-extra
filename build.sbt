@@ -3,7 +3,7 @@ import Keys._
 
 val avroVersion = "1.9.2"
 val hadoopVersion = "3.2.1"
-val magnoliaVersion = "0.14.5"
+val magnoliaVersion = "0.15.0"
 val parquetVersion = "1.11.0"
 val scalatestVersion = "3.1.1"
 val tensorFlowVersion = "1.15.0"
@@ -106,11 +106,14 @@ lazy val parquetTypes: Project = Project(
   file("parquet-types")
 ).settings(
   commonSettings,
-  libraryDependencies += {
+  libraryDependencies ++= {
     if (scalaBinaryVersion.value == "2.11") {
-      "me.lyh" %% "magnolia" % "0.10.1-jto"
+      Seq("me.lyh" %% "magnolia" % "0.10.1-jto")
     } else {
-      "com.propensive" %% "magnolia" % magnoliaVersion
+      Seq(
+        "com.propensive" %% "magnolia" % magnoliaVersion,
+        "org.scala-lang" % "scala-reflect" % scalaVersion.value
+      )
     }
   },
   libraryDependencies ++= Seq(
