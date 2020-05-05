@@ -151,8 +151,8 @@ object ParquetType {
       }
     }
 
-  implicit def repeatedType[V, C[V]](
-    implicit t: Typeclass[V],
+  implicit def repeatedType[V, C[V]](implicit
+    t: Typeclass[V],
     ti: C[V] => Iterable[V],
     fc: FactoryCompat[V, C[V]]
   ): Typeclass[C[V]] =
