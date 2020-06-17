@@ -57,32 +57,30 @@ lazy val root: Project = Project(
   "parquet-extra",
   file(".")
 ).settings(
-    commonSettings ++ noPublishSettings,
-    run := run in Compile in parquetExamples
-  )
-  .aggregate(
-    parquetAvro,
-    parquetTensorFlow,
-    parquetTypes,
-    parquetExamples
-  )
+  commonSettings ++ noPublishSettings,
+  run := run in Compile in parquetExamples
+).aggregate(
+  parquetAvro,
+  parquetTensorFlow,
+  parquetTypes,
+  parquetExamples
+)
 
 lazy val parquetAvro: Project = Project(
   "parquet-avro",
   file("parquet-avro")
 ).settings(
-    commonSettings,
-    libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    libraryDependencies ++= Seq(
-      "org.apache.avro" % "avro" % avroVersion,
-      "org.apache.avro" % "avro-compiler" % avroVersion,
-      "org.apache.parquet" % "parquet-column" % parquetVersion,
-      "org.scalatest" %% "scalatest" % scalatestVersion % Test
-    )
+  commonSettings,
+  libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+  libraryDependencies ++= Seq(
+    "org.apache.avro" % "avro" % avroVersion,
+    "org.apache.avro" % "avro-compiler" % avroVersion,
+    "org.apache.parquet" % "parquet-column" % parquetVersion,
+    "org.scalatest" %% "scalatest" % scalatestVersion % Test
   )
-  .dependsOn(
-    parquetSchema % Test
-  )
+).dependsOn(
+  parquetSchema % Test
+)
 
 lazy val parquetTensorFlow: Project = Project(
   "parquet-tensorflow",
@@ -136,14 +134,13 @@ lazy val parquetExamples: Project = Project(
   "parquet-examples",
   file("parquet-examples")
 ).settings(
-    commonSettings ++ noPublishSettings,
-    coverageExcludedPackages := Seq(
-      "me\\.lyh\\.parquet\\.examples\\..*"
-    ).mkString(";")
-  )
-  .dependsOn(
-    parquetAvro,
-    parquetTensorFlow,
-    parquetTypes,
-    parquetSchema
-  )
+  commonSettings ++ noPublishSettings,
+  coverageExcludedPackages := Seq(
+    "me\\.lyh\\.parquet\\.examples\\..*"
+  ).mkString(";")
+).dependsOn(
+  parquetAvro,
+  parquetTensorFlow,
+  parquetTypes,
+  parquetSchema
+)
