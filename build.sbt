@@ -47,6 +47,9 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   )
 )
 
+val scalatestDependencies = Seq("flatspec", "shouldmatchers")
+  .map(m => "org.scalatest" %% s"scalatest-$m" % scalatestVersion % Test)
+
 val noPublishSettings = Seq(
   publish := {},
   publishLocal := {},
@@ -75,9 +78,9 @@ lazy val parquetAvro: Project = Project(
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % avroVersion,
     "org.apache.avro" % "avro-compiler" % avroVersion,
-    "org.apache.parquet" % "parquet-column" % parquetVersion,
-    "org.scalatest" %% "scalatest" % scalatestVersion % Test
-  )
+    "org.apache.parquet" % "parquet-column" % parquetVersion
+  ),
+  libraryDependencies ++= scalatestDependencies
 ).dependsOn(
   parquetSchema % Test
 )
@@ -94,9 +97,9 @@ lazy val parquetTensorFlow: Project = Project(
     "org.apache.parquet" % "parquet-column" % parquetVersion,
     "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
     "org.tensorflow" % "proto" % tensorFlowVersion,
-    "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided,
-    "org.scalatest" %% "scalatest" % scalatestVersion % Test
-  )
+    "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
+  ),
+  libraryDependencies ++= scalatestDependencies
 )
 
 lazy val parquetTypes: Project = Project(
@@ -117,9 +120,9 @@ lazy val parquetTypes: Project = Project(
   libraryDependencies ++= Seq(
     "org.apache.parquet" % "parquet-column" % parquetVersion,
     "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
-    "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided,
-    "org.scalatest" %% "scalatest" % scalatestVersion % Test
-  )
+    "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
+  ),
+  libraryDependencies ++= scalatestDependencies
 )
 
 lazy val parquetSchema: Project = Project(
