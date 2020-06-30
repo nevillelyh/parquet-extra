@@ -11,10 +11,9 @@ val tensorFlowVersion = "1.15.0"
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization := "me.lyh",
   scalaVersion := "2.13.2",
-  crossScalaVersions := Seq("2.11.12", "2.12.11", "2.13.2"),
+  crossScalaVersions := Seq("2.12.11", "2.13.2"),
   scalacOptions ++= Seq("-target:jvm-1.8", "-deprecation", "-feature", "-unchecked"),
   scalacOptions ++= (scalaBinaryVersion.value match {
-    case "2.11" => Seq("-language:higherKinds")
     case "2.12" => Seq("-language:higherKinds")
     case "2.13" => Nil
   }),
@@ -107,17 +106,9 @@ lazy val parquetTypes: Project = Project(
   file("parquet-types")
 ).settings(
   commonSettings,
-  libraryDependencies ++= {
-    if (scalaBinaryVersion.value == "2.11") {
-      Seq("me.lyh" %% "magnolia" % "0.10.1-jto")
-    } else {
-      Seq(
-        "com.propensive" %% "magnolia" % magnoliaVersion,
-        "org.scala-lang" % "scala-reflect" % scalaVersion.value
-      )
-    }
-  },
   libraryDependencies ++= Seq(
+    "com.propensive" %% "magnolia" % magnoliaVersion,
+    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     "org.apache.parquet" % "parquet-column" % parquetVersion,
     "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
