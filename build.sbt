@@ -93,7 +93,6 @@ lazy val parquetTensorFlow: Project = Project(
   autoScalaLibrary := false,
   publishArtifact := scalaBinaryVersion.value == "2.12",
   libraryDependencies ++= Seq(
-    "org.apache.parquet" % "parquet-column" % parquetVersion,
     "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
     "org.tensorflow" % "proto" % tensorFlowVersion,
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
@@ -109,7 +108,6 @@ lazy val parquetTypes: Project = Project(
   libraryDependencies ++= Seq(
     "com.propensive" %% "magnolia" % magnoliaVersion,
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    "org.apache.parquet" % "parquet-column" % parquetVersion,
     "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
   ),
