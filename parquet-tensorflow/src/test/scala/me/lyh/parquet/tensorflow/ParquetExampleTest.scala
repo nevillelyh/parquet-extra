@@ -82,13 +82,12 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
     val keySet = keys.toSet
     (e: Example) => {
       val features = e.getFeatures.getFeatureMap.asScala
-        .foldLeft(Features.newBuilder()) {
-          case (b, (k, v)) =>
-            if (keySet.contains(k)) {
-              b.putFeature(k, v)
-            } else {
-              b
-            }
+        .foldLeft(Features.newBuilder()) { case (b, (k, v)) =>
+          if (keySet.contains(k)) {
+            b.putFeature(k, v)
+          } else {
+            b
+          }
         }
         .build()
       Example.newBuilder().setFeatures(features).build()
