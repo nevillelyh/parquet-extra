@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 
-val avroVersion = "1.9.2"
+val avroVersion = "1.10.1"
 val hadoopVersion = "3.3.0"
 val magnoliaVersion = "0.17.0"
 val parquetVersion = "1.11.1"
