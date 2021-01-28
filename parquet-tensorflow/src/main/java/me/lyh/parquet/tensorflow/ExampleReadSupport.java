@@ -10,7 +10,7 @@ import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.MessageTypeParser;
 import org.apache.parquet.schema.Type;
 import org.apache.parquet.schema.Types;
-import org.tensorflow.example.Example;
+import org.tensorflow.proto.example.Example;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -6,8 +6,8 @@ import org.apache.parquet.Preconditions;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.*;
-import org.tensorflow.example.Feature;
-import org.tensorflow.example.Features;
+import org.tensorflow.proto.example.Feature;
+import org.tensorflow.proto.example.Features;
 import shaded.parquet.com.fasterxml.jackson.core.JsonProcessingException;
 import shaded.parquet.com.fasterxml.jackson.databind.ObjectMapper;
 

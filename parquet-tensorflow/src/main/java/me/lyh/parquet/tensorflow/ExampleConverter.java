@@ -6,7 +6,7 @@ import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.Converter;
 import org.apache.parquet.io.api.GroupConverter;
 import org.apache.parquet.io.api.PrimitiveConverter;
-import org.tensorflow.example.*;
+import org.tensorflow.proto.example.*;
 
 import java.util.List;
 

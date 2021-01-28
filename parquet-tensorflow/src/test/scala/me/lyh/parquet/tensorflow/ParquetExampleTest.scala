@@ -9,7 +9,7 @@ import org.apache.hadoop.mapreduce.{Job, TaskAttemptID}
 import org.apache.parquet.hadoop.{ParquetInputFormat, ParquetReader}
 import org.apache.parquet.hadoop.metadata.CompressionCodecName
 import org.apache.parquet.io.ParquetDecodingException
-import org.tensorflow.example.{BytesList, Example, Feature, Features, FloatList, Int64List}
+import org.tensorflow.proto.example.{BytesList, Example, Feature, Features, FloatList, Int64List}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
