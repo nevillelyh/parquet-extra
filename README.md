@@ -11,7 +11,6 @@ A collection of [Apache Parquet](http://parquet.apache.org/) add-on modules.
 
 - `parquet-avro` - Scala macros for generating column projections and filter predicates from lambda functions.
 - `parquet-tensorflow` - [TensorFlow](https://www.tensorflow.org/) `Example` read/write support.
-- `parquet-types` - Scala case class read/write support powered by [Magnolia](https://github.com/propensive/magnolia).
 
 ## License
 

@@ -3,7 +3,6 @@ import Keys._
 
 val avroVersion = "1.10.1"
 val hadoopVersion = "3.3.0"
-val magnoliaVersion = "0.17.0"
 val parquetVersion = "1.11.1"
 val scalatestVersion = "3.2.3"
 val tensorFlowVersion = "0.2.0"
@@ -64,7 +63,6 @@ lazy val root: Project = Project(
 ).aggregate(
   parquetAvro,
   parquetTensorFlow,
-  parquetTypes,
   parquetExamples
 )
 
@@ -100,20 +98,6 @@ lazy val parquetTensorFlow: Project = Project(
   libraryDependencies ++= scalatestDependencies
 )
 
-lazy val parquetTypes: Project = Project(
-  "parquet-types",
-  file("parquet-types")
-).settings(
-  commonSettings,
-  libraryDependencies ++= Seq(
-    "com.propensive" %% "magnolia" % magnoliaVersion,
-    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
-    "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
-  ),
-  libraryDependencies ++= scalatestDependencies
-)
-
 lazy val parquetSchema: Project = Project(
   "parquet-schema",
   file("parquet-schema")
@@ -133,6 +117,5 @@ lazy val parquetExamples: Project = Project(
 ).dependsOn(
   parquetAvro,
   parquetTensorFlow,
-  parquetTypes,
   parquetSchema
 )
