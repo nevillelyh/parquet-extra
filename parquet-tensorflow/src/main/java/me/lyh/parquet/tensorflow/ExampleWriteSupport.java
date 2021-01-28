@@ -5,8 +5,8 @@ import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.MessageTypeParser;
-import org.tensorflow.example.Example;
-import org.tensorflow.example.Features;
+import org.tensorflow.proto.example.Example;
+import org.tensorflow.proto.example.Features;
 
 import java.util.Collections;
 
