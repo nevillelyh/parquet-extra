@@ -73,9 +73,9 @@ lazy val parquetAvro: Project = Project(
   commonSettings,
   libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value,
   libraryDependencies ++= Seq(
-    "org.apache.avro" % "avro" % avroVersion,
-    "org.apache.avro" % "avro-compiler" % avroVersion,
-    "org.apache.parquet" % "parquet-column" % parquetVersion
+    "org.apache.avro" % "avro" % avroVersion % Provided,
+    "org.apache.avro" % "avro-compiler" % avroVersion % Provided,
+    "org.apache.parquet" % "parquet-column" % parquetVersion % Provided
   ),
   libraryDependencies ++= scalatestDependencies
 ).dependsOn(
@@ -91,8 +91,8 @@ lazy val parquetTensorFlow: Project = Project(
   autoScalaLibrary := false,
   publishArtifact := scalaBinaryVersion.value == "2.12",
   libraryDependencies ++= Seq(
-    "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
-    "org.tensorflow" % "tensorflow-core-api" % tensorFlowVersion,
+    "org.apache.parquet" % "parquet-hadoop" % parquetVersion % Provided,
+    "org.tensorflow" % "tensorflow-core-api" % tensorFlowVersion % Provided,
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
   ),
   libraryDependencies ++= scalatestDependencies
@@ -111,6 +111,11 @@ lazy val parquetExamples: Project = Project(
   file("parquet-examples")
 ).settings(
   commonSettings ++ noPublishSettings,
+  libraryDependencies ++= Seq(
+    "org.apache.avro" % "avro" % avroVersion,
+    "org.apache.avro" % "avro-compiler" % avroVersion,
+    "org.apache.parquet" % "parquet-column" % parquetVersion
+  ),
   coverageExcludedPackages := Seq(
     "me\\.lyh\\.parquet\\.examples\\..*"
   ).mkString(";")
