@@ -92,6 +92,7 @@ lazy val parquetCarreleur: Project = Project(
   autoScalaLibrary := false,
   publishArtifact := scalaBinaryVersion.value == "2.12",
   libraryDependencies ++= Seq(
+    "com.spotify" % "magnolify-parquet" % "0.4.2" % Provided,
     "org.apache.parquet" % "parquet-hadoop" % parquetVersion % Provided,
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
   ),
