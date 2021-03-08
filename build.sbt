@@ -62,6 +62,7 @@ lazy val root: Project = Project(
   run := run in Compile in parquetExamples
 ).aggregate(
   parquetAvro,
+  parquetCarreleur,
   parquetTensorFlow,
   parquetExamples
 )
@@ -80,6 +81,21 @@ lazy val parquetAvro: Project = Project(
   libraryDependencies ++= scalatestDependencies
 ).dependsOn(
   parquetSchema % Test
+)
+
+lazy val parquetCarreleur: Project = Project(
+  "parquet-carreleur",
+  file("parquet-carreleur")
+).settings(
+  commonSettings,
+  crossPaths := false,
+  autoScalaLibrary := false,
+  publishArtifact := scalaBinaryVersion.value == "2.12",
+  libraryDependencies ++= Seq(
+    "org.apache.parquet" % "parquet-hadoop" % parquetVersion % Provided,
+    "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
+  ),
+  libraryDependencies ++= scalatestDependencies
 )
 
 lazy val parquetTensorFlow: Project = Project(
