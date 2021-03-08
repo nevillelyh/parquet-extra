@@ -2,10 +2,12 @@ package me.lyh.parquet.carreleur
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
+import org.apache.parquet.ParquetReadOptions
 import org.apache.parquet.bytes.BytesInput
 import org.apache.parquet.column.ParquetProperties
 import org.apache.parquet.column.page.DataPage.Visitor
 import org.apache.parquet.column.page.{DataPageV1, DataPageV2, DictionaryPage}
+import org.apache.parquet.column.statistics.Statistics
 import org.apache.parquet.compression.CompressionCodecFactory
 import org.apache.parquet.hadoop.ParquetFileWriter.Mode
 import org.apache.parquet.hadoop.util.{HadoopInputFile, HadoopOutputFile}
@@ -58,7 +60,6 @@ object Test {
 
         val pageReader = rowGroup.getPageReader(columnDescriptor)
         val dictionary = pageReader.readDictionaryPage()
-        println(dictionary)
         if (dictionary != null) {
           writer.writeDictionaryPage(new DictionaryPage(
             compressor.compress(dictionary.getBytes),
@@ -69,17 +70,26 @@ object Test {
         }
 
         var dataPage = pageReader.readPage()
+        var firstPage = true
         while (dataPage != null) {
           dataPage.accept(new Visitor[Unit] {
             override def visit(dataPageV1: DataPageV1): Unit = {
-              println("V1")
               val bytes = compressor.compress(dataPageV1.getBytes)
+
+              // Statistics is on the column + row group level
+              // FIXME: this is wrong
+              val statistics = if (firstPage) {
+                firstPage = false
+                column.getStatistics
+              } else {
+                Statistics.createStats(column.getPrimitiveType)
+              }
 
               writer.writeDataPage(
                 dataPageV1.getValueCount,
                 dataPageV1.getUncompressedSize,
                 bytes,
-                dataPageV1.getStatistics,
+                statistics,
                 dataPageV1.getIndexRowCount.orElse(0).toLong,
                 dataPageV1.getRlEncoding,
                 dataPageV1.getDlEncoding,
