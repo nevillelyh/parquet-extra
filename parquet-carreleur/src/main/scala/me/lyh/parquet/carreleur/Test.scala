@@ -2,16 +2,14 @@ package me.lyh.parquet.carreleur
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
-import org.apache.parquet.ParquetReadOptions
-import org.apache.parquet.bytes.BytesInput
 import org.apache.parquet.column.ParquetProperties
 import org.apache.parquet.column.page.DataPage.Visitor
 import org.apache.parquet.column.page.{DataPageV1, DataPageV2, DictionaryPage}
 import org.apache.parquet.column.statistics.Statistics
-import org.apache.parquet.compression.CompressionCodecFactory
 import org.apache.parquet.hadoop.ParquetFileWriter.Mode
-import org.apache.parquet.hadoop.util.{HadoopInputFile, HadoopOutputFile}
 import org.apache.parquet.hadoop._
+import org.apache.parquet.hadoop.util.{HadoopInputFile, HadoopOutputFile}
+import org.apache.parquet.io.ColumnIOFactory
 
 import scala.jdk.CollectionConverters._
 
@@ -50,7 +48,6 @@ object Test {
       println("# BLOCK TOTAL BYTE SIZE: " + block.getTotalByteSize)
       println("# BLOCK ROW COUNT: " + block.getRowCount)
       val rowGroup = reader.readNextRowGroup()
-//      val pages = Array.fill[DataPage](block.getColumns.size())(null)
       block.getColumns.asScala.foreach { column =>
         println("# COLUMN: " + column.getPath.toDotString)
         val columnDescriptor = schema.getColumnDescription(column.getPath.toArray)
@@ -85,6 +82,7 @@ object Test {
                 Statistics.createStats(column.getPrimitiveType)
               }
 
+              new ColumnIOFactory().getColumnIO(schema).getRecordReader(rowGroup)
               writer.writeDataPage(
                 dataPageV1.getValueCount,
                 dataPageV1.getUncompressedSize,
