@@ -1,7 +1,7 @@
 package me.lyh.parquet.tensorflow;
 
 import org.apache.parquet.Preconditions;
-import org.tensorflow.example.Example;
+import org.tensorflow.proto.example.Example;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -29,28 +29,25 @@ public class ExampleScanner {
       Schema.Type newType = null;
       int count = -1;
       switch (feature.getKindCase()) {
-        case BYTES_LIST:
-          newType = Schema.Type.BYTES;
-          count = feature.getBytesList().getValueCount();
-          break;
-        case FLOAT_LIST:
-          newType = Schema.Type.FLOAT;
-          count = feature.getFloatList().getValueCount();
-          break;
-        case INT64_LIST:
-          newType = Schema.Type.INT64;
-          count = feature.getInt64List().getValueCount();
-          break;
-        case KIND_NOT_SET:
-          count = 0;
-          break;
+      case BYTES_LIST:
+        newType = Schema.Type.BYTES;
+        count = feature.getBytesList().getValueCount();
+        break;
+      case FLOAT_LIST:
+        newType = Schema.Type.FLOAT;
+        count = feature.getFloatList().getValueCount();
+        break;
+      case INT64_LIST:
+        newType = Schema.Type.INT64;
+        count = feature.getInt64List().getValueCount();
+        break;
+      case KIND_NOT_SET:
+        count = 0;
+        break;
       }
       Schema.Type type = types.get(name);
       if (type != null && newType != null) {
-        Preconditions.checkArgument(
-            type == newType,
-            "Incompatible types for field %s: %s != %s",
-            name, type, newType);
+        Preconditions.checkArgument(type == newType, "Incompatible types for field %s: %s != %s", name, type, newType);
       }
       if (newType != null) {
         types.put(name, newType);

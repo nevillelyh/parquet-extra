@@ -8,7 +8,7 @@ import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
 import org.apache.parquet.io.InputFile;
-import org.tensorflow.example.Example;
+import org.tensorflow.proto.example.Example;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -16,7 +16,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ExampleParquetReader {
-  private ExampleParquetReader() {}
+  private ExampleParquetReader() {
+  }
 
   public static Builder builder(Path path) {
     return new Builder(path);

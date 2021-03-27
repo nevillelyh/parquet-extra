@@ -6,7 +6,7 @@ val hadoopVersion = "3.3.0"
 val magnoliaVersion = "0.17.0"
 val parquetVersion = "1.11.1"
 val scalatestVersion = "3.2.3"
-val tensorFlowVersion = "1.15.0"
+val tensorFlowVersion = "0.3.0"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization := "me.lyh",
@@ -94,7 +94,7 @@ lazy val parquetTensorFlow: Project = Project(
   publishArtifact := scalaBinaryVersion.value == "2.12",
   libraryDependencies ++= Seq(
     "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
-    "org.tensorflow" % "proto" % tensorFlowVersion,
+    "org.tensorflow" % "tensorflow-core-api" % tensorFlowVersion,
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
   ),
   libraryDependencies ++= scalatestDependencies

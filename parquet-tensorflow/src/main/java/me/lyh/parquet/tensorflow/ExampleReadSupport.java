@@ -10,7 +10,7 @@ import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.MessageTypeParser;
 import org.apache.parquet.schema.Type;
 import org.apache.parquet.schema.Types;
-import org.tensorflow.example.Example;
+import org.tensorflow.proto.example.Example;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,7 +19,8 @@ public class ExampleReadSupport extends ReadSupport<Example> {
   private Schema schema;
   private Set<String> fields;
 
-  public ExampleReadSupport() {}
+  public ExampleReadSupport() {
+  }
 
   public ExampleReadSupport(Schema schema) {
     this.schema = schema;
@@ -53,13 +54,11 @@ public class ExampleReadSupport extends ReadSupport<Example> {
   }
 
   @Override
-  public RecordMaterializer<Example> prepareForRead(Configuration configuration,
-                                                    Map<String, String> keyValueMetaData,
-                                                    MessageType fileSchema,
-                                                    ReadContext readContext) {
+  public RecordMaterializer<Example> prepareForRead(Configuration configuration, Map<String, String> keyValueMetaData,
+      MessageType fileSchema, ReadContext readContext) {
     return new RecordMaterializer<Example>() {
-      private ExampleConverter exampleConverter =
-          new ExampleConverter(Schema.fromParquet(readContext.getRequestedSchema()));
+      private ExampleConverter exampleConverter = new ExampleConverter(
+          Schema.fromParquet(readContext.getRequestedSchema()));
 
       @Override
       public Example getCurrentRecord() {

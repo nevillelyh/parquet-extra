@@ -6,8 +6,8 @@ import org.apache.parquet.Preconditions;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.*;
-import org.tensorflow.example.Feature;
-import org.tensorflow.example.Features;
+import org.tensorflow.proto.example.Feature;
+import org.tensorflow.proto.example.Features;
 import shaded.parquet.com.fasterxml.jackson.core.JsonProcessingException;
 import shaded.parquet.com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,8 +18,7 @@ public class Schema {
   public enum Type {
     INT64(PrimitiveType.PrimitiveTypeName.INT64) {
       @Override
-      void write(String name, int index, Repetition repetition, RecordConsumer recordConsumer,
-                        Feature feature) {
+      void write(String name, int index, Repetition repetition, RecordConsumer recordConsumer, Feature feature) {
         List<Long> xs = feature.getInt64List().getValueList();
         repetition.checkSize(xs.size());
         if (xs.size() > 0) {
@@ -36,8 +35,7 @@ public class Schema {
     },
     FLOAT(PrimitiveType.PrimitiveTypeName.FLOAT) {
       @Override
-      void write(String name, int index, Repetition repetition, RecordConsumer recordConsumer,
-                 Feature feature) {
+      void write(String name, int index, Repetition repetition, RecordConsumer recordConsumer, Feature feature) {
         List<Float> xs = feature.getFloatList().getValueList();
         repetition.checkSize(xs.size());
         if (xs.size() > 0) {
@@ -54,15 +52,12 @@ public class Schema {
     },
     BYTES(PrimitiveType.PrimitiveTypeName.BINARY) {
       @Override
-      void write(String name, int index, Repetition repetition, RecordConsumer recordConsumer,
-                 Feature feature) {
+      void write(String name, int index, Repetition repetition, RecordConsumer recordConsumer, Feature feature) {
         List<ByteString> xs = feature.getBytesList().getValueList();
         repetition.checkSize(xs.size());
         if (xs.size() > 0) {
           recordConsumer.startField(name, index);
-          xs.stream()
-              .map(b -> Binary.fromConstantByteArray(b.toByteArray()))
-              .forEach(recordConsumer::addBinary);
+          xs.stream().map(b -> Binary.fromConstantByteArray(b.toByteArray())).forEach(recordConsumer::addBinary);
           recordConsumer.endField(name, index);
         }
       }
@@ -74,21 +69,25 @@ public class Schema {
     };
 
     private final PrimitiveType.PrimitiveTypeName parquet;
+
     Type(PrimitiveType.PrimitiveTypeName parquet) {
       this.parquet = parquet;
     }
 
     public static Type fromParquet(PrimitiveType.PrimitiveTypeName parquet) {
       switch (parquet) {
-        case INT64: return INT64;
-        case FLOAT: return FLOAT;
-        case BINARY: return BYTES;
+      case INT64:
+        return INT64;
+      case FLOAT:
+        return FLOAT;
+      case BINARY:
+        return BYTES;
       }
       throw new IllegalArgumentException("Unsupported primitive type: " + parquet);
     }
 
-    abstract void write(String name, int index, Repetition repetition,
-                        RecordConsumer recordConsumer, Feature feature);
+    abstract void write(String name, int index, Repetition repetition, RecordConsumer recordConsumer, Feature feature);
+
     abstract FeatureConverter newConverter(Repetition repetition);
   }
 
@@ -107,22 +106,28 @@ public class Schema {
     },
     REPEATED(org.apache.parquet.schema.Type.Repetition.REPEATED) {
       @Override
-      void checkSize(int count) {}
+      void checkSize(int count) {
+      }
     };
 
     private final org.apache.parquet.schema.Type.Repetition parquet;
+
     Repetition(org.apache.parquet.schema.Type.Repetition parquet) {
       this.parquet = parquet;
     }
 
     public static Repetition fromParquet(org.apache.parquet.schema.Type.Repetition parquet) {
       switch (parquet) {
-        case REQUIRED: return REQUIRED;
-        case OPTIONAL: return OPTIONAL;
-        case REPEATED: return REPEATED;
+      case REQUIRED:
+        return REQUIRED;
+      case OPTIONAL:
+        return OPTIONAL;
+      case REPEATED:
+        return REPEATED;
       }
       throw new IllegalStateException("This should never happen");
     }
+
     abstract void checkSize(int count);
 
   }
@@ -132,7 +137,8 @@ public class Schema {
     private Type type;
     private Repetition repetition;
 
-    private Field() {}
+    private Field() {
+    }
 
     private Field(String name, Type type, Repetition repetition) {
       this.name = name;
@@ -153,8 +159,7 @@ public class Schema {
     }
 
     public PrimitiveType toParquet() {
-      Types.PrimitiveBuilder<PrimitiveType> builder =
-          Types.primitive(type.parquet, repetition.parquet);
+      Types.PrimitiveBuilder<PrimitiveType> builder = Types.primitive(type.parquet, repetition.parquet);
       return type.parquet == PrimitiveType.PrimitiveTypeName.INT64
           ? builder.as(LogicalTypeAnnotation.intType(64, true)).named(name)
           : builder.named(name);
@@ -162,9 +167,7 @@ public class Schema {
 
     public static Field fromParquet(org.apache.parquet.schema.Type parquet) {
       Preconditions.checkArgument(parquet.isPrimitive(), "Only primitive fields are supported");
-      return new Field(
-          parquet.getName(),
-          Type.fromParquet(parquet.asPrimitiveType().getPrimitiveTypeName()),
+      return new Field(parquet.getName(), Type.fromParquet(parquet.asPrimitiveType().getPrimitiveTypeName()),
           Repetition.fromParquet(parquet.getRepetition()));
     }
 
@@ -222,7 +225,8 @@ public class Schema {
   private String name;
   private List<Field> fields;
 
-  private Schema() {}
+  private Schema() {
+  }
 
   private Schema(String name, List<Field> fields) {
     this.name = name;
@@ -281,8 +285,10 @@ public class Schema {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
     Schema schema = (Schema) o;
     return this.toParquet().equals(schema.toParquet());
   }

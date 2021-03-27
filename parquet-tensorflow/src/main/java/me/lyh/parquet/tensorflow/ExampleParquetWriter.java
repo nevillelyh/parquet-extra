@@ -7,10 +7,11 @@ import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.OutputFile;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.MessageTypeParser;
-import org.tensorflow.example.Example;
+import org.tensorflow.proto.example.Example;
 
 public class ExampleParquetWriter {
-  private ExampleParquetWriter() {}
+  private ExampleParquetWriter() {
+  }
 
   public static Builder builder(Path path) {
     return new Builder(path);

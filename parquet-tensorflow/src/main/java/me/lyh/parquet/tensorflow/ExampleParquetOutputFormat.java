@@ -2,7 +2,7 @@ package me.lyh.parquet.tensorflow;
 
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.parquet.hadoop.ParquetOutputFormat;
-import org.tensorflow.example.Example;
+import org.tensorflow.proto.example.Example;
 
 public class ExampleParquetOutputFormat extends ParquetOutputFormat<Example> {
   public static final String SCHEMA_KEY = "parquet.tensorflow.example.output.schema";
