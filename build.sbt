@@ -17,7 +17,7 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
     case "2.13" => Nil
   }),
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-  javacOptions in (Compile, doc) := Seq("-source", "1.8"),
+  Compile / doc / javacOptions := Seq("-source", "1.8"),
   // Release settings
   publishTo := Some(
     if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging
@@ -25,7 +25,7 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   publishMavenStyle := true,
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   sonatypeProfileName := "me.lyh",
   licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
   homepage := Some(url("https://github.com/nevillelyh/parquet-extra")),
@@ -59,7 +59,7 @@ lazy val root: Project = Project(
   file(".")
 ).settings(
   commonSettings ++ noPublishSettings,
-  run := run in Compile in parquetExamples
+  run := parquetExamples / Compile / run
 ).aggregate(
   parquetAvro,
   parquetTensorFlow,
