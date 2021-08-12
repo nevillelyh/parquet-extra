@@ -1,0 +1,14 @@
+[
+   {
+       "type": "record",
+       "name": "ParquetTestRecord",
+       "namespace": "com.spotify.scio.parquet",
+       "doc": "",
+       "fields": [
+          {"name": "field1", "type": "int"},
+          {"name": "field2", "type": "int"},
+          {"name": "field3", "type": "int"},
+          {"name": "field4", "type": "int"},
+          {"name": "field5", "type": "int"}
+       ]
+   }]

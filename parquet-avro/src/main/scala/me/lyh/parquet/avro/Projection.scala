@@ -113,7 +113,12 @@ object Projection {
   private class CustomField(schema: Schema, field: Schema.Field)
       extends Schema.Field(field.name(), schema, field.doc(), field.defaultVal()) {
     val originalPos = field.pos()
-    override def pos(): Int = originalPos
+
+    // Avro read test PASSES when this is commented out
+    override def pos(): Int = {
+      println(s"Override of pos() was called! Returning: $originalPos instead of ${super.pos()} for field: ${field.name()} of schema")
+      originalPos
+    }
   }
 
   private def fullFieldName(parentFieldName: Option[String], fieldName: String): Some[String] =

@@ -75,7 +75,15 @@ lazy val parquetAvro: Project = Project(
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % avroVersion % Provided,
     "org.apache.avro" % "avro-compiler" % avroVersion % Provided,
-    "org.apache.parquet" % "parquet-column" % parquetVersion % Provided
+    "org.apache.parquet" % "parquet-column" % parquetVersion % Provided,
+    "org.apache.parquet" % "parquet-avro" % parquetVersion  % Test exclude (
+      "org.apache.avro", "avro"
+    ),
+    "org.apache.hadoop" % "hadoop-common" % hadoopVersion % Test,
+    "org.apache.hadoop" % "hadoop-mapreduce-client-core" % hadoopVersion % Test,
+    "org.apache.parquet" % "parquet-column" % parquetVersion % Test,
+    "org.apache.parquet" % "parquet-common" % parquetVersion % Test,
+    "org.apache.parquet" % "parquet-hadoop" % parquetVersion % Test
   ),
   libraryDependencies ++= scalatestDependencies
 ).dependsOn(
