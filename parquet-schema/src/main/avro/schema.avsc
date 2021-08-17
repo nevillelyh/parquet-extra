@@ -57,4 +57,37 @@
         {"name": "boolean_field", "type": ["boolean", "null"]},
         {"name": "string_field", "type": ["string", "null"]}
     ]
+},
+{
+    "type": "record",
+    "name": "ProjectionTestRecord",
+    "namespace": "com.spotify.scio.parquet",
+    "doc": "Record for testing projection",
+    "fields": [
+        {"name": "field1", "type": "int"},
+        {"name": "field2", "type": "int"},
+        {"name": "field3", "type": "int"},
+        {"name": "field4", "type": "int"},
+        {"name": "field5", "type": "int"}
+    ]
+},
+{
+    "type": "record",
+    "name": "ProjectionTestRecord1",
+    "namespace": "com.spotify.scio.parquet",
+    "doc": "Record for testing projection, slim and same field order",
+    "fields": [
+        {"name": "field1", "type": "int"},
+        {"name": "field3", "type": "int"}
+    ]
+},
+{
+    "type": "record",
+    "name": "ProjectionTestRecord2",
+    "namespace": "com.spotify.scio.parquet",
+    "doc": "Record for testing projection, slim and different field order",
+    "fields": [
+        {"name": "field3", "type": "int"},
+        {"name": "field1", "type": "int"}
+    ]
 }]

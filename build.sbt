@@ -76,14 +76,9 @@ lazy val parquetAvro: Project = Project(
     "org.apache.avro" % "avro" % avroVersion % Provided,
     "org.apache.avro" % "avro-compiler" % avroVersion % Provided,
     "org.apache.parquet" % "parquet-column" % parquetVersion % Provided,
-    "org.apache.parquet" % "parquet-avro" % parquetVersion  % Test exclude (
-      "org.apache.avro", "avro"
-    ),
-    "org.apache.hadoop" % "hadoop-common" % hadoopVersion % Test,
-    "org.apache.hadoop" % "hadoop-mapreduce-client-core" % hadoopVersion % Test,
-    "org.apache.parquet" % "parquet-column" % parquetVersion % Test,
-    "org.apache.parquet" % "parquet-common" % parquetVersion % Test,
-    "org.apache.parquet" % "parquet-hadoop" % parquetVersion % Test
+    "org.apache.parquet" % "parquet-avro" % parquetVersion  % Test,
+    "org.apache.parquet" % "parquet-hadoop" % parquetVersion % Test,
+    "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Test,
   ),
   libraryDependencies ++= scalatestDependencies
 ).dependsOn(
@@ -111,8 +106,7 @@ lazy val parquetSchema: Project = Project(
   file("parquet-schema")
 ).settings(
   commonSettings ++ noPublishSettings,
-  libraryDependencies += "org.apache.avro" % "avro" % avroVersion,
-  libraryDependencies += "joda-time" % "joda-time" % "2.10.10"
+  libraryDependencies += "org.apache.avro" % "avro" % avroVersion
 )
 
 lazy val parquetExamples: Project = Project(

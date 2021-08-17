@@ -107,19 +107,7 @@ object Projection {
     Schema.createArray(createProjection(schema.getElementType, fields, parentFieldName))
 
   private def copyField(schema: Schema, field: Schema.Field): Schema.Field =
-    new CustomField(schema, field).asInstanceOf[Schema.Field]
-
-  //remember the original field position
-  private class CustomField(schema: Schema, field: Schema.Field)
-      extends Schema.Field(field.name(), schema, field.doc(), field.defaultVal()) {
-    val originalPos = field.pos()
-
-    // Avro read test PASSES when this is commented out
-    override def pos(): Int = {
-      println(s"Override of pos() was called! Returning: $originalPos instead of ${super.pos()} for field: ${field.name()} of schema")
-      originalPos
-    }
-  }
+    new Schema.Field(field.name(), schema, field.doc(), field.defaultVal())
 
   private def fullFieldName(parentFieldName: Option[String], fieldName: String): Some[String] =
     parentFieldName match {
