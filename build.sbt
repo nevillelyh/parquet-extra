@@ -111,7 +111,8 @@ lazy val parquetSchema: Project = Project(
   file("parquet-schema")
 ).settings(
   commonSettings ++ noPublishSettings,
-  libraryDependencies += "org.apache.avro" % "avro" % avroVersion
+  libraryDependencies += "org.apache.avro" % "avro" % avroVersion,
+  libraryDependencies += "joda-time" % "joda-time" % "2.10.10"
 )
 
 lazy val parquetExamples: Project = Project(
