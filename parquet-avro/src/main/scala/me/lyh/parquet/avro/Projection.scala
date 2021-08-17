@@ -107,14 +107,7 @@ object Projection {
     Schema.createArray(createProjection(schema.getElementType, fields, parentFieldName))
 
   private def copyField(schema: Schema, field: Schema.Field): Schema.Field =
-    new CustomField(schema, field).asInstanceOf[Schema.Field]
-
-  //remember the original field position
-  private class CustomField(schema: Schema, field: Schema.Field)
-      extends Schema.Field(field.name(), schema, field.doc(), field.defaultVal()) {
-    val originalPos = field.pos()
-    override def pos(): Int = originalPos
-  }
+    new Schema.Field(field.name(), schema, field.doc(), field.defaultVal())
 
   private def fullFieldName(parentFieldName: Option[String], fieldName: String): Some[String] =
     parentFieldName match {

@@ -75,7 +75,10 @@ lazy val parquetAvro: Project = Project(
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % avroVersion % Provided,
     "org.apache.avro" % "avro-compiler" % avroVersion % Provided,
-    "org.apache.parquet" % "parquet-column" % parquetVersion % Provided
+    "org.apache.parquet" % "parquet-column" % parquetVersion % Provided,
+    "org.apache.parquet" % "parquet-avro" % parquetVersion % Test,
+    "org.apache.parquet" % "parquet-hadoop" % parquetVersion % Test,
+    "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Test
   ),
   libraryDependencies ++= scalatestDependencies
 ).dependsOn(
