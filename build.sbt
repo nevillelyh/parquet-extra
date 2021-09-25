@@ -3,14 +3,14 @@ import Keys._
 
 val avroVersion = "1.10.1"
 val hadoopVersion = "3.3.1"
-val parquetVersion = "1.12.0"
-val scalatestVersion = "3.2.9"
+val parquetVersion = "1.12.1"
+val scalatestVersion = "3.2.10"
 val tensorFlowVersion = "0.3.3"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization := "me.lyh",
   scalaVersion := "2.13.6",
-  crossScalaVersions := Seq("2.12.14", "2.13.6"),
+  crossScalaVersions := Seq("2.12.15", "2.13.6"),
   scalacOptions ++= Seq("-target:jvm-1.8", "-deprecation", "-feature", "-unchecked"),
   scalacOptions ++= (scalaBinaryVersion.value match {
     case "2.12" => Seq("-language:higherKinds")
