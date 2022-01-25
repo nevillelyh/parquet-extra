@@ -34,6 +34,11 @@ public class ExampleWriteSupport extends WriteSupport<Example> {
   }
 
   @Override
+  public String getName() {
+    return "example";
+  }
+
+  @Override
   public void prepareForWrite(RecordConsumer recordConsumer) {
     this.recordConsumer = recordConsumer;
   }
