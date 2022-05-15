@@ -16,7 +16,7 @@ import org.scalatest.matchers.should.Matchers
 import scala.collection.JavaConverters._
 
 class ParquetExampleTest extends AnyFlatSpec with Matchers {
-  private val fs = FileSystem.getLocal(new Configuration())
+  private val fs = FileSystem.getLocal(new Configuration)
 
   private def makeTemp: Path = {
     val tmp = sys.props("java.io.tmpdir")
@@ -125,7 +125,7 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
 
     job.setOutputFormatClass(classOf[ExampleParquetOutputFormat])
     ExampleParquetOutputFormat.setSchema(job, primitiveSchema)
-    val outputFormat = new ExampleParquetOutputFormat()
+    val outputFormat = new ExampleParquetOutputFormat
     val writer = outputFormat.getRecordWriter(job.getConfiguration, temp, CompressionCodecName.GZIP)
     primitiveExamples.foreach(writer.write(null, _))
     writer.close(null)
@@ -133,8 +133,8 @@ class ParquetExampleTest extends AnyFlatSpec with Matchers {
     job.setInputFormatClass(classOf[ExampleParquetInputFormat])
 
     def read(): Seq[Example] = {
-      val inputFormat = new ExampleParquetInputFormat()
-      val context = new TaskAttemptContextImpl(job.getConfiguration, new TaskAttemptID())
+      val inputFormat = new ExampleParquetInputFormat
+      val context = new TaskAttemptContextImpl(job.getConfiguration, new TaskAttemptID)
       FileInputFormat.setInputPaths(job, temp)
       val split = inputFormat.getSplits(job).get(0)
       val reader = inputFormat.createRecordReader(split, context)

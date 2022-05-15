@@ -27,9 +27,9 @@ object Projection {
   }
 
   def project(schema: String, fields: String*): Schema =
-    createProjection(new Schema.Parser().parse(schema), fields.toSet)
+    createProjection(new Schema.Parser.parse(schema), fields.toSet)
 
-  private val rand = new java.util.Random()
+  private val rand = new java.util.Random
 
   private def createProjection(
     schema: Schema,

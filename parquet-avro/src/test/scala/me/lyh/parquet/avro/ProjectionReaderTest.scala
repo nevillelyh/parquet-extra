@@ -39,14 +39,14 @@ class ProjectionReaderTest extends AnyFlatSpec with Matchers with BeforeAndAfter
       .build()
 
     val avroWriter = {
-      val datumWriter = new SpecificDatumWriter[ProjectionTestRecord]()
+      val datumWriter = new SpecificDatumWriter[ProjectionTestRecord]
       val writer = new DataFileWriter[ProjectionTestRecord](datumWriter)
       writer.create(ProjectionTestRecord.getClassSchema, new File(avroPath.toString))
     }
     avroWriter.append(record)
     avroWriter.close()
 
-    val conf = new Configuration()
+    val conf = new Configuration
     AvroWriteSupport.setSchema(conf, ProjectionTestRecord.getClassSchema)
 
     val parquetWriter: ParquetWriter[ProjectionTestRecord] = AvroParquetWriter
@@ -59,8 +59,8 @@ class ProjectionReaderTest extends AnyFlatSpec with Matchers with BeforeAndAfter
   }
 
   override def afterAll(): Unit = {
-    FileSystem.get(new Configuration()).delete(parquetPath, false)
-    FileSystem.get(new Configuration()).delete(avroPath, false)
+    FileSystem.get(new Configuration).delete(parquetPath, false)
+    FileSystem.get(new Configuration).delete(avroPath, false)
   }
   private def readAvro(projection: Schema)(f: GenericRecord => Unit): Unit = {
     val file = new File(avroPath.toString)
@@ -73,7 +73,7 @@ class ProjectionReaderTest extends AnyFlatSpec with Matchers with BeforeAndAfter
   }
 
   private def readParquet[T: ClassTag](projection: Schema = null)(f: T => Unit): Unit = {
-    val conf = new Configuration()
+    val conf = new Configuration
     val schema = classTag[T].runtimeClass
       .getMethod("getClassSchema")
       .invoke(null)
