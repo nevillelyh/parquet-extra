@@ -1,7 +1,7 @@
 parquet-extra
 =============
 
-[![Build Status](https://img.shields.io/github/workflow/status/nevillelyh/parquet-extra/CI)](https://github.com/nevillelyh/parquet-extra/actions?query=workflow%3ACI)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/nevillelyh/parquet-extra/ci.yml?branch=main)](https://github.com/nevillelyh/parquet-extra/actions?query=workflow%3ACI)
 [![codecov.io](https://codecov.io/github/nevillelyh/parquet-extra/coverage.svg?branch=master)](https://codecov.io/github/nevillelyh/parquet-extra?branch=master)
 [![GitHub license](https://img.shields.io/github/license/nevillelyh/parquet-extra.svg)](./LICENSE)
 [![Maven Central](https://img.shields.io/maven-central/v/me.lyh/parquet-avro_2.13.svg)](https://maven-badges.herokuapp.com/maven-central/me.lyh/parquet-avro_2.13)
