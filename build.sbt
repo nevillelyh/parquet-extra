@@ -4,7 +4,7 @@ import Keys._
 val avroVersion = "1.11.3"
 val hadoopVersion = "3.4.0"
 val parquetVersion = "1.13.1"
-val scalatestVersion = "3.2.18"
+val scalatestVersion = "3.2.19"
 val tensorFlowVersion = "0.5.0"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
