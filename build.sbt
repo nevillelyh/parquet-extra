@@ -9,8 +9,8 @@ val tensorFlowVersion = "0.5.0"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization := "me.lyh",
-  scalaVersion := "2.13.15",
-  crossScalaVersions := Seq("2.12.20", "2.13.15"),
+  scalaVersion := "2.13.16",
+  crossScalaVersions := Seq("2.12.20", "2.13.16"),
   scalacOptions ++= Seq("-target:jvm-1.8", "-deprecation", "-feature", "-unchecked"),
   scalacOptions ++= (scalaBinaryVersion.value match {
     case "2.12" => Seq("-language:higherKinds")
@@ -104,9 +104,10 @@ lazy val parquetTensorFlow: Project = Project(
 lazy val parquetSchema: Project = Project(
   "parquet-schema",
   file("parquet-schema")
+).enablePlugins(
+  SbtAvro
 ).settings(
-  commonSettings ++ noPublishSettings,
-  libraryDependencies += "org.apache.avro" % "avro" % avroVersion
+  commonSettings ++ noPublishSettings
 )
 
 lazy val parquetExamples: Project = Project(
