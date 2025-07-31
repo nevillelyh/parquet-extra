@@ -5,7 +5,7 @@ val avroVersion = "1.12.0"
 val hadoopVersion = "3.4.1"
 val parquetVersion = "1.15.2"
 val scalatestVersion = "3.2.19"
-val tensorFlowVersion = "0.5.0"
+val tensorFlowVersion = "1.1.0"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization := "me.lyh",
