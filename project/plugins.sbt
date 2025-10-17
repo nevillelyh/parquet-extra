@@ -5,4 +5,4 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.5")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.3.1")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.12.2")
 
-libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.12.0"
+libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.12.1"
