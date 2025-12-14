@@ -9,8 +9,8 @@ val tensorFlowVersion = "0.5.0"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization := "me.lyh",
-  scalaVersion := "2.13.16",
-  crossScalaVersions := Seq("2.12.21", "2.13.16"),
+  scalaVersion := "2.13.18",
+  crossScalaVersions := Seq("2.12.21", "2.13.18"),
   scalacOptions ++= Seq("-target:jvm-1.8", "-deprecation", "-feature", "-unchecked"),
   scalacOptions ++= (scalaBinaryVersion.value match {
     case "2.12" => Seq("-language:higherKinds")
