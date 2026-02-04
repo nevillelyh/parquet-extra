@@ -8,7 +8,7 @@ import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
 import org.apache.parquet.io.InputFile;
-import org.tensorflow.proto.example.Example;
+import org.tensorflow.example.Example;
 
 import java.io.IOException;
 import java.util.Collection;
