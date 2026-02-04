@@ -5,7 +5,7 @@ val avroVersion = "1.12.1"
 val hadoopVersion = "3.4.2"
 val parquetVersion = "1.17.0"
 val scalatestVersion = "3.2.19"
-val tensorFlowVersion = "0.5.0"
+val tensorFlowVersion = "1.1.0"
 
 val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   organization := "me.lyh",
@@ -96,6 +96,7 @@ lazy val parquetTensorFlow: Project = Project(
   libraryDependencies ++= Seq(
     "org.apache.parquet" % "parquet-hadoop" % parquetVersion % Provided,
     "org.tensorflow" % "tensorflow-core-api" % tensorFlowVersion % Provided,
+    "org.tensorflow" % "proto" % tensorFlowVersion % Provided,
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
   ),
   libraryDependencies ++= scalatestDependencies

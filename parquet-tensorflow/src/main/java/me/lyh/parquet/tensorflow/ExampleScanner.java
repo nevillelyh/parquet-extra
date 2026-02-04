@@ -1,7 +1,7 @@
 package me.lyh.parquet.tensorflow;
 
 import org.apache.parquet.Preconditions;
-import org.tensorflow.proto.example.Example;
+import org.tensorflow.example.Example;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;

@@ -3,7 +3,7 @@ package me.lyh.parquet.tensorflow
 import com.google.protobuf.ByteString
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.tensorflow.proto.example.{BytesList, Example, Feature, Features, FloatList, Int64List}
+import org.tensorflow.example.{BytesList, Example, Feature, Features, FloatList, Int64List}
 
 import scala.collection.JavaConverters._
 
