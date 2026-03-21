@@ -20,9 +20,8 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
   Compile / doc / javacOptions := Seq("-source", "1.8"),
   // Release settings
-  publishTo := Some(
-    if (isSnapshot.value) Opts.resolver.sonatypeOssSnapshots.head else Opts.resolver.sonatypeStaging
-  ),
+  publishTo := (if (isSnapshot.value) Some(Resolver.sonatypeCentralSnapshots)
+                else localStaging.value),
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   publishMavenStyle := true,
