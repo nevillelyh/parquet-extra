@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 val avroVersion = "1.12.1"
-val hadoopVersion = "3.4.3"
+val hadoopVersion = "3.5.0"
 val parquetVersion = "1.17.0"
 val scalatestVersion = "3.2.20"
 val tensorFlowVersion = "1.1.0"
