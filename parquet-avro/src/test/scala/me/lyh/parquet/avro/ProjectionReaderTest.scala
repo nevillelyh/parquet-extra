@@ -6,6 +6,7 @@ import org.apache.avro.file.{DataFileReader, DataFileWriter}
 import org.apache.avro.generic.{GenericData, GenericDatumReader, GenericRecord}
 import org.apache.avro.io.DatumReader
 import org.apache.avro.specific.SpecificDatumWriter
+import org.apache.avro.util.ClassSecurityValidator
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.parquet.avro.{
@@ -27,8 +28,21 @@ class ProjectionReaderTest extends AnyFlatSpec with Matchers with BeforeAndAfter
   private val tmpDir = sys.props("java.io.tmpdir")
   private val parquetPath: Path = new Path(tmpDir, "test-parquet-" + UUID.randomUUID())
   private val avroPath: Path = new Path(tmpDir, "test-avro-" + UUID.randomUUID())
+  private val originalClassSecurityValidator = ClassSecurityValidator.getGlobal()
 
   override def beforeAll(): Unit = {
+    ClassSecurityValidator.setGlobal(
+      ClassSecurityValidator.composite(
+        originalClassSecurityValidator,
+        ClassSecurityValidator
+          .builder()
+          .add(classOf[ProjectionTestRecord])
+          .add(classOf[ProjectionTestRecord1])
+          .add(classOf[ProjectionTestRecord2])
+          .build()
+      )
+    )
+
     val record = ProjectionTestRecord
       .newBuilder()
       .setField1(1)
@@ -59,8 +73,12 @@ class ProjectionReaderTest extends AnyFlatSpec with Matchers with BeforeAndAfter
   }
 
   override def afterAll(): Unit = {
-    FileSystem.get(new Configuration()).delete(parquetPath, false)
-    FileSystem.get(new Configuration()).delete(avroPath, false)
+    try {
+      FileSystem.get(new Configuration()).delete(parquetPath, false)
+      FileSystem.get(new Configuration()).delete(avroPath, false)
+    } finally {
+      ClassSecurityValidator.setGlobal(originalClassSecurityValidator)
+    }
   }
   private def readAvro(projection: Schema)(f: GenericRecord => Unit): Unit = {
     val file = new File(avroPath.toString)
