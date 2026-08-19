@@ -8,7 +8,7 @@ val scalatestVersion = "3.2.20"
 val tensorFlowVersion = "1.1.0"
 val tensorFlowProtoVersion = "1.15.0"
 
-val commonSettings = Sonatype.sonatypeSettings ++ Seq(
+val commonSettings = Seq(
   organization := "me.lyh",
   scalaVersion := "2.13.18",
   crossScalaVersions := Seq("2.12.21", "2.13.18"),
@@ -26,12 +26,11 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   publishMavenStyle := true,
   Test / publishArtifact := false,
-  sonatypeProfileName := "me.lyh",
-  licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  homepage := Some(url("https://github.com/nevillelyh/parquet-extra")),
+  licenses := Seq(License.Apache2),
+  homepage := Some(uri("https://github.com/nevillelyh/parquet-extra")),
   scmInfo := Some(
     ScmInfo(
-      url("https://github.com/nevillelyh/parquet-extra.git"),
+      uri("https://github.com/nevillelyh/parquet-extra.git"),
       "scm:git:git@github.com:nevillelyh/parquet-extra.git"
     )
   ),
@@ -40,7 +39,7 @@ val commonSettings = Sonatype.sonatypeSettings ++ Seq(
       id = "sinisa_lyh",
       name = "Neville Li",
       email = "neville.lyh@gmail.com",
-      url = url("https://twitter.com/sinisa_lyh")
+      url = uri("https://twitter.com/sinisa_lyh")
     )
   )
 )
@@ -59,7 +58,7 @@ lazy val root: Project = Project(
   file(".")
 ).settings(
   commonSettings ++ noPublishSettings,
-  run := parquetExamples / Compile / run
+  run := (parquetExamples / Compile / run).evaluated
 ).aggregate(
   parquetAvro,
   parquetTensorFlow,
