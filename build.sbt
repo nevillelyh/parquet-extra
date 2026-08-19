@@ -5,7 +5,6 @@ val avroVersion = "1.12.2"
 val hadoopVersion = "3.5.0"
 val parquetVersion = "1.18.0"
 val scalatestVersion = "3.2.20"
-val tensorFlowVersion = "1.1.0"
 val tensorFlowProtoVersion = "1.15.0"
 
 val commonSettings = Seq(
@@ -94,7 +93,6 @@ lazy val parquetTensorFlow: Project = Project(
   publishArtifact := scalaBinaryVersion.value == "2.12",
   libraryDependencies ++= Seq(
     "org.apache.parquet" % "parquet-hadoop" % parquetVersion % Provided,
-    "org.tensorflow" % "tensorflow-core-api" % tensorFlowVersion % Provided,
     "org.tensorflow" % "proto" % tensorFlowProtoVersion % Provided,
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided
   ),
