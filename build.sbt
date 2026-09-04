@@ -9,8 +9,8 @@ val tensorFlowProtoVersion = "1.15.0"
 
 val commonSettings = Seq(
   organization := "me.lyh",
-  scalaVersion := "2.13.18",
-  crossScalaVersions := Seq("2.12.21", "2.13.18"),
+  scalaVersion := "3.9.0",
+  crossScalaVersions := Seq("2.12.21", "3.9.0"),
   scalacOptions ++= Seq("-target:jvm-1.8", "-deprecation", "-feature", "-unchecked"),
   scalacOptions ++= (scalaBinaryVersion.value match {
     case "2.12" => Seq("-language:higherKinds")
